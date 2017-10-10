@@ -21,5 +21,11 @@ namespace ERNI.PhotoDatabase.Server.Controllers
 
             return View(images);
         }
+
+        [HttpGet]
+        public IActionResult Upload()
+        {
+            return View();
+        }
     }
 }

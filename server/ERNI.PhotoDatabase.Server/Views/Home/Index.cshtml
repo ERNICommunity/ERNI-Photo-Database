@@ -1,5 +1,6 @@
 ﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers 
-@model ERNI.PhotoDatabase.Server.SearchResult[]
+@using ERNI.PhotoDatabase.Server.Controllers
+@model ERNI.PhotoDatabase.Server.Controllers.SearchResult[]
 <!DOCTYPE html>
 
 <html>
@@ -21,7 +22,7 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
 	        <ul class="navbar-nav mr-auto">
 		        <li class="nav-item">
-			        <a class="nav-link" href="#upload">Upload</a>
+			        @Html.ActionLink("Upload", "Upload", "Home")
 		        </li>
 	        </ul>
 	        @using (Html.BeginForm("index", "home", null, FormMethod.Get, false, new { @class = "form-inline my-2 my-lg-0" }))

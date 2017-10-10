@@ -1,6 +1,4 @@
-﻿using System.Security.Principal;
-
-namespace ERNI.PhotoDatabase.Server
+﻿namespace ERNI.PhotoDatabase.Server.Controllers
 {
     public class SearchResult
     {
