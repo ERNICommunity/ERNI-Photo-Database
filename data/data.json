@@ -1,0 +1,9 @@
+{
+    "data": [
+        { "file": "andrej.png", "tags": ["andrej", "office"] },
+        { "file": "barbora.jpg", "tags": ["barbora", "office"] },
+        { "file": "gerald.png", "tags": ["gerald", "geraldo", "blank"] },
+        { "file": "j+t.png", "tags": ["jakub", "tomas", "office"] },
+        { "file": "ruben.png", "tags": ["ruben", "blank"] }
+    ]
+}
