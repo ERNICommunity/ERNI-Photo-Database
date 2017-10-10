@@ -78,7 +78,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
                 }
             }
             
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Search", "Home");
         }
     }
 }
