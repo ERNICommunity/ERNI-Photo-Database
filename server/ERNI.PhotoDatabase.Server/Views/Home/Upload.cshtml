@@ -1,0 +1,10 @@
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers 
+@{
+    Layout = "_Layout";
+}
+
+@using (Html.BeginForm("upload", "image", null, FormMethod.Post, false, new { @class = "form-inline my-2 my-lg-0", enctype="multipart/form-data" }))
+{
+	<input class="form-control mr-sm-2" type="file" multiple="multiple" name="files" aria-label="Upload">
+	<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Upload</button>
+}

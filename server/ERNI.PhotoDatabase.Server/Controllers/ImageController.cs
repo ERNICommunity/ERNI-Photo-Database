@@ -1,7 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.FileSystemGlobbing.Abstractions;
 
 namespace ERNI.PhotoDatabase.Server.Controllers
 {
@@ -15,7 +19,6 @@ namespace ERNI.PhotoDatabase.Server.Controllers
         {
             _dataProvider = dataProvider;
         }
-
 
         // GET api/values
         [HttpGet]
@@ -44,12 +47,6 @@ namespace ERNI.PhotoDatabase.Server.Controllers
             return Ok(_dataProvider.Images.Where(i => i.Tags.Contains(tag)));
         }
 
-        // POST api/values
-        [HttpPost]
-        public void Post([FromBody]string value)
-        {
-        }
-
         // PUT api/values/5
         [HttpPut("{id}")]
         public void Put(int id, [FromBody]string value)
@@ -60,6 +57,28 @@ namespace ERNI.PhotoDatabase.Server.Controllers
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
+        }
+
+        // GET api/values
+        [HttpPost]
+        public IActionResult Upload(List<IFormFile> files)
+        {
+            foreach (var formFile in files)
+            {
+                using (var openReadStream = formFile.OpenReadStream())
+                {
+                    var data = new byte[formFile.Length];
+                    openReadStream.Read(data, 0, data.Length);
+                    _dataProvider.Images.Add(new Image
+                    {
+                        File = formFile.Name,
+                        Content = data,
+                        Tags = new[] {"office"}
+                    });
+                }
+            }
+            
+            return RedirectToAction("Index", "Home");
         }
     }
 }
