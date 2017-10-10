@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
 using ERNI.PhotoDatabase.DataAccess;
+using ERNI.PhotoDatabase.Server.Controllers;
 
 namespace ERNI.PhotoDatabase.Server
 {
@@ -26,6 +27,8 @@ namespace ERNI.PhotoDatabase.Server
         public void ConfigureServices(IServiceCollection services)
         {
             //services.AddDbContext<DatabaseContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Database")));
+
+            services.AddSingleton<DataProvider>();
 
             services.AddMvc();
         }
