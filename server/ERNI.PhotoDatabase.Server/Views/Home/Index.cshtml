@@ -19,25 +19,25 @@
         </button>
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="#upload">Upload</a>
-                </li>
-            </ul>
-            <form class="form-inline my-2 my-lg-0" method="get" action="search">
-                <input class="form-control mr-sm-2" type="text" name="query" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-            </form>
+	        <ul class="navbar-nav mr-auto">
+		        <li class="nav-item">
+			        <a class="nav-link" href="#upload">Upload</a>
+		        </li>
+	        </ul>
+	        @using (Html.BeginForm("index", "home", null, FormMethod.Get, false, new { @class = "form-inline my-2 my-lg-0" }))
+	        {
+				<input class="form-control mr-sm-2" type="text" name="query" placeholder="Search" aria-label="Search">
+				<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+	        }
         </div>
     </nav>
     @if (Model != null)
     {
-        foreach (var sr in Model)
-        {
-            <img src="@sr.ImagePath"/>
-        }
+	    foreach (var sr in Model)
+	    {
+		    <img src="/api/image/@Html.UrlEncoder.Encode(sr.ImagePath)/download"/>
+	    }
     }
-
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
