@@ -5,5 +5,7 @@
         public string File { get; set; }
 
         public string[] Tags { get; set; }
+
+        public byte[] Content { get; set; }
     }
 }

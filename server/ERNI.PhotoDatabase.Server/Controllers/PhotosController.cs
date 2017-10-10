@@ -31,6 +31,12 @@ namespace ERNI.PhotoDatabase.Server.Controllers
             return Ok(_dataProvider.Images.Single(i => i.File == id));
         }
 
+        [HttpGet("{id}/download")]
+        public IActionResult Download(string id)
+        {
+            return File(_dataProvider.Images.Single(i => i.File == id).Content, "image/jpeg");
+        }
+
         // GET api/values/5
         [HttpGet("search/tag/{tag}")]
         public IActionResult GetImagesByTag(string tag)
