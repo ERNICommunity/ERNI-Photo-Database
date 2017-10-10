@@ -1,13 +1,31 @@
-﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers 
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @using ERNI.PhotoDatabase.Server.Controllers
 @model ERNI.PhotoDatabase.Server.Controllers.SearchResult[]
-@{ 
-    Layout = "_Layout";
+@{
+    Layout= "_Layout";
 }
-    @if (Model != null)
-    {
-	    foreach (var sr in Model)
-	    {
-		    <img src="/api/image/@Html.UrlEncoder.Encode(sr.ImagePath)/download"/>
-	    }
-    }
+@if (Model != null)
+{
+    <div class="row search-result">
+        @foreach (var sr in Model)
+        {
+            <div class="col">
+                <div class="card">
+                    <img class="card-img-top" src="/api/image/@Html.UrlEncoder.Encode(sr.ImagePath)/download" alt="@sr.ImagePath">
+                    <div class="card-body">
+                        <h4 class="card-title">@sr.ImagePath</h4>
+                        <p class="card-text tags">
+                            @foreach(var tag in sr.Tags)
+                            {
+                                @Html.ActionLink(tag, "Index", "Home", new { query=tag }, new { @class = "badge badge-primary"})
+                            }
+                        </p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+
+

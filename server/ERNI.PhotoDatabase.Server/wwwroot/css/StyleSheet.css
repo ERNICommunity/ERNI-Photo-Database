@@ -1,0 +1,15 @@
+﻿.tags a.badge {
+    margin-right: 0.5rem;
+}
+
+.navbar {
+    margin-bottom: 10px;
+}
+
+.search-result .col {
+    margin-bottom: 10px;
+}
+
+.search-result .card {
+    width: 20rem;
+}

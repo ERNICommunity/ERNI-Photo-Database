@@ -3,5 +3,6 @@
     public class SearchResult
     {
         public string ImagePath { get; set; }
+        public string[] Tags { get; set; }
     }
 }

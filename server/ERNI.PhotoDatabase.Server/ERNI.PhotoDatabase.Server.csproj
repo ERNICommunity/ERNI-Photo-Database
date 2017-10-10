@@ -5,8 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Views\Image\" />
-    <Folder Include="wwwroot\" />
+    <Compile Remove="Views\Image\**" />
+    <Content Remove="Views\Image\**" />
+    <EmbeddedResource Remove="Views\Image\**" />
+    <None Remove="Views\Image\**" />
   </ItemGroup>
 
   <ItemGroup>

@@ -16,7 +16,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
         public IActionResult Index(string query)
         {
             var images = _dataProvider.Images.Where(i => i.Tags.Contains(query))
-                .Select(i => new SearchResult {ImagePath = i.File})
+                .Select(i => new SearchResult {ImagePath = i.File, Tags = i.Tags})
                 .ToArray();
 
             return View(images);

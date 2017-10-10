@@ -46,6 +46,8 @@ namespace ERNI.PhotoDatabase.Server
             //    context.Database.EnsureCreated();
             //}
 
+            app.UseStaticFiles();
+
             app.UseMvcWithDefaultRoute();
         }
     }
