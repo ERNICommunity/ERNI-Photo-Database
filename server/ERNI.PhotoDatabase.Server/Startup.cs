@@ -19,7 +19,7 @@ namespace ERNI.PhotoDatabase.Server
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<DatabaseContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Database")));
+            //services.AddDbContext<DatabaseContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Database")));
 
             services.AddMvc();
         }
@@ -32,16 +32,16 @@ namespace ERNI.PhotoDatabase.Server
                 app.UseDeveloperExceptionPage();
             }
 
-            using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
-            {
-                var context = serviceScope.ServiceProvider.GetRequiredService<DatabaseContext>();
-                if (env.IsDevelopment())
-                {
-                    context.Database.EnsureDeleted();
-                }
+            //using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
+            //{
+            //    var context = serviceScope.ServiceProvider.GetRequiredService<DatabaseContext>();
+            //    if (env.IsDevelopment())
+            //    {
+            //        context.Database.EnsureDeleted();
+            //    }
 
-                context.Database.EnsureCreated();
-            }
+            //    context.Database.EnsureCreated();
+            //}
 
             app.UseMvcWithDefaultRoute();
         }
