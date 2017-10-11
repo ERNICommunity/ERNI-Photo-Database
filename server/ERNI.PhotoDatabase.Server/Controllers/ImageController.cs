@@ -71,7 +71,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
                     openReadStream.Read(data, 0, data.Length);
                     _dataProvider.Images.Add(new Image
                     {
-                        File = formFile.Name,
+                        File = formFile.FileName,
                         Content = data,
                         Tags = new[] {"office"}
                     });
