@@ -12,7 +12,7 @@
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="#">ERNI Photo app</a>
+        <a asp-controller="Home" asp-action="Index" class="navbar-brand">ERNI Photo app</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -20,21 +20,19 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                    @Html.ActionLink("Upload", "Upload", "Home")
+                    <a asp-controller="Home" asp-action="Upload">Upload</a>
                 </li>
             </ul>
-            @using (Html.BeginForm("index", "home", null, FormMethod.Get, false, new { @class = "form-inline my-2 my-lg-0" }))
-            {
-                <input class="form-control mr-sm-2" type="text" name="query" placeholder="Search" aria-label="Search">
+            <form asp-controller="Home" asp-action="Search" method="get" asp-antiforgery="false" class="form-inline my-2 my-lg-0">
+                <input type="text" placeholder="Search" aria-label="Search" name="query" class="form-control mr-sm-2"/>
                 <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-            }
+            </form>
         </div>
     </nav>
 
     <div class="container">
         @RenderBody()
     </div>
-
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->

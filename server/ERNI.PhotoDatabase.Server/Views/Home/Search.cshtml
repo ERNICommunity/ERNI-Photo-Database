@@ -15,7 +15,7 @@
                     <p class="card-text tags">
                         @foreach(var tag in sr.Tags)
                         {
-                            @Html.ActionLink(tag, "Search", "Home", new { query=tag }, new { @class = "badge badge-primary"})
+                            <a asp-controller="Home" asp-action="Search" asp-route-query="@tag" class="badge badge-primary">@tag</a>
                         }
                     </p>
                 </div>
