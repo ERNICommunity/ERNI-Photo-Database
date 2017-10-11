@@ -1,5 +1,4 @@
-﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
-@model IEnumerable<(string Tag,int Count)>
+﻿@model IEnumerable<(string Tag,int Count)>
 @{
     Layout= "_Layout";
 }
@@ -7,7 +6,7 @@
 <div class="row search-result">
     @foreach (var item in Model)
     {
-        @Html.ActionLink(item.Tag, "Search", "Home", new { query=item.Tag }, new { @class = "badge badge-primary"})
+        <a asp-controller="Home" asp-action="Search" asp-route-query="@item.Tag" class="badge badge-primary">@item.Tag</a>
     }
 </div>
 
