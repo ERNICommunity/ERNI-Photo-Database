@@ -1,0 +1,19 @@
+﻿@model ERNI.PhotoDatabase.Server.Model.ImageDescription
+
+<div class="row">
+    <input type="hidden" asp-for="Filename"/>
+    <div class="col">
+        <div class="card">
+            <img class="card-img-top" src="@Url.Action("Thumbnail", "Image", new {id = Model.Filename})" alt="@Model.Filename">
+            <div class="card-body">
+                <h4 class="card-title">@Model.Filename</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="form-group">
+            <label asp-for="Tags" class="control-label"></label>
+            <input asp-for="Tags" class="form-control"/>
+        </div>
+    </div>
+</div>

@@ -1,11 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using System.Linq;
 using System.Threading.Tasks;
+using ERNI.PhotoDatabase.Server.Utils.Image;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.FileSystemGlobbing.Abstractions;
+using SkiaSharp;
 
 namespace ERNI.PhotoDatabase.Server.Controllers
 {
@@ -37,7 +39,13 @@ namespace ERNI.PhotoDatabase.Server.Controllers
         [HttpGet("{id}/download")]
         public IActionResult Download(string id)
         {
-            return File(_dataProvider.Images.Single(i => i.File == id).Content, "image/jpeg");
+            return File(_dataProvider.Images.Single(i => i.File == id).Thumbnail, "image/jpeg");
+        }
+
+        [HttpGet("{id}/thumbnail")]
+        public IActionResult Thumbnail(string id)
+        {
+            return File(_dataProvider.Images.Single(i => i.File == id).Thumbnail, "image/jpeg");
         }
 
         // GET api/values/5
@@ -46,20 +54,13 @@ namespace ERNI.PhotoDatabase.Server.Controllers
         {
             return Ok(_dataProvider.Images.Where(i => i.Tags.Contains(tag)));
         }
-
-        // PUT api/values/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
-        {
-        }
-
-        // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
-
+        
         // GET api/values
+        /// <summary>
+        /// Uploads the specified files.
+        /// </summary>
+        /// <param name="files">The files.</param>
+        /// <returns></returns>
         [HttpPost]
         public IActionResult Upload(List<IFormFile> files)
         {
@@ -69,16 +70,21 @@ namespace ERNI.PhotoDatabase.Server.Controllers
                 {
                     var data = new byte[formFile.Length];
                     openReadStream.Read(data, 0, data.Length);
+
+                    var thumbnailData = ImageManipulation.CreateThumbnailFrom(data);
+                    
                     _dataProvider.Images.Add(new Image
                     {
                         File = formFile.FileName,
                         Content = data,
-                        Tags = new[] {"office"}
+                        Tags = new[] { "office" },
+                        Thumbnail = thumbnailData
                     });
                 }
             }
-            
-            return RedirectToAction("Search", "Home");
+
+            return RedirectToAction("Index", "Tag", new {files = files.Select(_ => _.FileName).ToArray()});
         }
     }
 }
+

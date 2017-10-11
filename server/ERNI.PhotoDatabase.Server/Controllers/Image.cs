@@ -7,5 +7,7 @@
         public string[] Tags { get; set; }
 
         public byte[] Content { get; set; }
+
+        public byte[] Thumbnail { get; set; }
     }
 }

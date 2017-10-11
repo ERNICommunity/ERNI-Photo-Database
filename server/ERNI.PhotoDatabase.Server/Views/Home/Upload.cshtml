@@ -1,6 +1,7 @@
 ﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers 
 @{
     Layout = "_Layout";
+    ViewData["Title"] = "Upload";
 }
 
 <form asp-controller="Image" asp-action="Upload" method="post" asp-antiforgery="false" class="form-inline my-2 my-lg-0" enctype="multipart/form-data" >

@@ -20,6 +20,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
                 .GroupBy(t => t)
                 .Select(grp => (Tag: grp.Key, Count: grp.Count()))
                 .ToList();
+
             return View(data);
         }
 
