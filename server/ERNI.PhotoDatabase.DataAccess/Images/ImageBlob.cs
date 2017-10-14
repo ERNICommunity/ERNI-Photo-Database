@@ -6,7 +6,7 @@ namespace ERNI.PhotoDatabase.DataAccess.Images
 {
     public class ImageBlob
     {
-        public string Id { get; set; }
+        public Guid Id { get; set; }
 
         public byte[] Content { get; set; }
     }
