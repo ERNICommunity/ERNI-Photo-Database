@@ -23,7 +23,7 @@ namespace ERNI.PhotoDatabase.DataAccess.Images
             _account = CloudStorageAccount.Parse(configuration.ConnectionString);
         }
 
-        public Task Initialize(CancellationToken cancellationToken)
+        public Task InitializeAsync(CancellationToken cancellationToken)
         {
             var client = _account.CreateCloudBlobClient();
             var container = GetContainerReference(client);

@@ -5,6 +5,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using ERNI.PhotoDatabase.DataAccess;
 using ERNI.PhotoDatabase.Server.Controllers;
+using System;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace ERNI.PhotoDatabase.Server
 {
@@ -21,8 +24,10 @@ namespace ERNI.PhotoDatabase.Server
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<DatabaseContext>(options => options.UseSqlServer(Configuration.GetValue<string>("ConnectionString")));
-            
+
+            services.AddSingleton<DataAccess.Images.ImageStoreConfiguration>();
             services.AddSingleton<DataProvider>();
+            services.AddScoped<DataAccess.Images.ImageStore>();
             services.AddMvc();
         }
 
@@ -45,9 +50,25 @@ namespace ERNI.PhotoDatabase.Server
                 context.Database.EnsureCreated();
             }
 
+            ConfigureImageStore(app.ApplicationServices).Wait();
+
             app.UseStaticFiles();
 
             app.UseMvcWithDefaultRoute();
+        }
+
+        private async Task ConfigureImageStore(IServiceProvider serviceProvider)
+        {
+            var imageStoreConfiguration = serviceProvider.GetRequiredService<DataAccess.Images.ImageStoreConfiguration>();
+            var imageStoreSection = Configuration.GetSection("imageStore");
+            imageStoreConfiguration.ConnectionString = imageStoreSection.GetValue("connectionString", imageStoreConfiguration.ConnectionString);
+            imageStoreConfiguration.ContainerName = imageStoreSection.GetValue("containerName", imageStoreConfiguration.ContainerName);
+
+            using (var scope = serviceProvider.CreateScope())
+            {
+                var imageStore = scope.ServiceProvider.GetRequiredService<DataAccess.Images.ImageStore>();
+                await imageStore.InitializeAsync(CancellationToken.None);
+            }
         }
     }
 }
