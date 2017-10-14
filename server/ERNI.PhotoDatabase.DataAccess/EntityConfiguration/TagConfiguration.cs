@@ -12,6 +12,8 @@ namespace ERNI.PhotoDatabase.DataAccess.EntityConfiguration
 
             builder.HasKey(p => p.Id);
             builder.Property(p => p.Text).IsRequired();
+
+            builder.HasIndex(p => p.Text).IsUnique();
         }
     }
 }

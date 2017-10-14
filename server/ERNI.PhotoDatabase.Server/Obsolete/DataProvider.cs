@@ -1,9 +1,9 @@
-﻿using Newtonsoft.Json;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using ERNI.PhotoDatabase.Server.Utils.Image;
+using Newtonsoft.Json;
 
-namespace ERNI.PhotoDatabase.Server.Controllers
+namespace ERNI.PhotoDatabase.Server.Obsolete
 {
     public class DataProvider
     {

@@ -12,6 +12,11 @@ namespace ERNI.PhotoDatabase.DataAccess.EntityConfiguration
 
             builder.HasKey(p => p.Id);
             builder.Property(p => p.Name).IsRequired();
+            builder.Property(p => p.FullSizeImageId).IsRequired();
+            builder.Property(p => p.ThumbnailImageId).IsRequired();
+
+            builder.HasIndex(p => p.FullSizeImageId).IsUnique();
+            builder.HasIndex(p => p.ThumbnailImageId).IsUnique();
         }
     }
 }
