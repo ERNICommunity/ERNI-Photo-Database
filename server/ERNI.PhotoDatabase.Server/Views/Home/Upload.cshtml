@@ -4,7 +4,7 @@
     ViewData["Title"] = "Upload";
 }
 
-<form asp-controller="Image" asp-action="Upload" method="post" asp-antiforgery="false" class="form-inline my-2 my-lg-0" enctype="multipart/form-data" >
+<form asp-controller="Photo" asp-action="Upload" method="post" asp-antiforgery="false" class="form-inline my-2 my-lg-0" enctype="multipart/form-data" >
     <input class="form-control mr-sm-2" type="file" name="files" aria-label="Upload" multiple/>
     <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Upload</button>
 </form>

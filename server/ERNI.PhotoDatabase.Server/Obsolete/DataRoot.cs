@@ -1,4 +1,4 @@
-﻿namespace ERNI.PhotoDatabase.Server.Controllers
+﻿namespace ERNI.PhotoDatabase.Server.Obsolete
 {
     public class DataRoot
     {

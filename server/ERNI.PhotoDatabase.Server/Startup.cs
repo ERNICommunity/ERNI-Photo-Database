@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using ERNI.PhotoDatabase.DataAccess;
-using ERNI.PhotoDatabase.Server.Controllers;
+using ERNI.PhotoDatabase.Server.Obsolete;
 
 namespace ERNI.PhotoDatabase.Server
 {

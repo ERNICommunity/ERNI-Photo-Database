@@ -4,6 +4,7 @@ using System.IO;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Threading.Tasks;
+using ERNI.PhotoDatabase.Server.Obsolete;
 using ERNI.PhotoDatabase.Server.Utils.Image;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.FileSystemGlobbing.Abstractions;
@@ -13,11 +14,11 @@ namespace ERNI.PhotoDatabase.Server.Controllers
 {
 
     [Route("api/[controller]")]
-    public class ImageController : Controller
+    public class PhotoController : Controller
     {
         private readonly DataProvider _dataProvider;
 
-        public ImageController(DataProvider dataProvider)
+        public PhotoController(DataProvider dataProvider)
         {
             _dataProvider = dataProvider;
         }
