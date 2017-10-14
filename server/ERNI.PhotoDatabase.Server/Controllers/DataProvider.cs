@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
+using ERNI.PhotoDatabase.Server.Utils.Image;
 
 namespace ERNI.PhotoDatabase.Server.Controllers
 {
@@ -14,7 +15,8 @@ namespace ERNI.PhotoDatabase.Server.Controllers
 
             foreach (var image in Images)
             {
-                image.Content = System.IO.File.ReadAllBytes(@"data/" + image.File);
+                image.Content = System.IO.File.ReadAllBytes(@"data\" + image.File);
+                image.Thumbnail = ImageManipulation.CreateThumbnailFrom(image.Content);
             }
         }
 

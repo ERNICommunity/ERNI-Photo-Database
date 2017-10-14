@@ -2,6 +2,7 @@
 @model ERNI.PhotoDatabase.Server.Controllers.SearchResult[]
 @{
     Layout= "_Layout";
+    ViewData["Title"] = "Search Results";
 }
 
 <div class="row search-result">
@@ -9,7 +10,7 @@
     {
         <div class="col">
             <div class="card">
-                <img class="card-img-top" src="/api/image/@Html.UrlEncoder.Encode(sr.ImagePath)/download" alt="@sr.ImagePath">
+                <img class="card-img-top" src="@Url.Action("Thumbnail", "Image", new { id = sr.ImagePath })" alt="@sr.ImagePath">
                 <div class="card-body">
                     <h4 class="card-title">@sr.ImagePath</h4>
                     <p class="card-text tags">
