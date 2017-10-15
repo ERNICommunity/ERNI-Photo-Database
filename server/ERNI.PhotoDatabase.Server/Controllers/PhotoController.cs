@@ -78,7 +78,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
         [HttpGet("search/tag/{tag}")]
         public async Task<IActionResult> GetImagesByTag(string tag, CancellationToken cancellationToken)
         {
-            var photos = this.repository.GetPhotosByTag(tag, cancellationToken);
+            var photos = await this.repository.GetPhotosByTag(tag, cancellationToken);
 
             return Ok(photos);
         }
