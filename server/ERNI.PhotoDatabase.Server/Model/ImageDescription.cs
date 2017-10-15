@@ -2,7 +2,7 @@
 {
     public class ImageDescription
     {
-        public string Filename { get; set; }
+        public int Id { get; set; }
 
         public string Tags { get; set; }
     }

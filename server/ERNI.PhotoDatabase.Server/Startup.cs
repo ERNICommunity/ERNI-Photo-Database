@@ -7,8 +7,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using ERNI.PhotoDatabase.DataAccess;
-using ERNI.PhotoDatabase.Server.Controllers;
-using ERNI.PhotoDatabase.Server.Obsolete;
+using ERNI.PhotoDatabase.DataAccess.Repository;
+using ERNI.PhotoDatabase.DataAccess.UnitOfWork;
 
 namespace ERNI.PhotoDatabase.Server
 {
@@ -26,8 +26,12 @@ namespace ERNI.PhotoDatabase.Server
         {
             services.AddDbContext<DatabaseContext>(options => options.UseSqlServer(Configuration.GetValue<string>("ConnectionString")));
 
+            services.AddScoped<IPhotoRepository, PhotoRepository>();
+            services.AddScoped<ITagRepository, TagRepository>();
+
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+
             services.AddSingleton<DataAccess.Images.ImageStoreConfiguration>();
-            services.AddSingleton<DataProvider>();
             services.AddScoped<DataAccess.Images.ImageStore>();
             services.AddMvc();
         }

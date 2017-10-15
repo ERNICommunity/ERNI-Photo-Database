@@ -1,38 +1,38 @@
 ﻿using System.Linq;
-using ERNI.PhotoDatabase.Server.Obsolete;
+using System.Threading;
+using System.Threading.Tasks;
+using ERNI.PhotoDatabase.DataAccess.Repository;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ERNI.PhotoDatabase.Server.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly DataProvider _dataProvider;
+        private readonly IPhotoRepository photoRepository;
+        private readonly ITagRepository tagRepository;
 
-        public HomeController(DataProvider dataProvider)
+        public HomeController(IPhotoRepository photoRepository, ITagRepository tagRepository)
         {
-            _dataProvider = dataProvider;
+            this.photoRepository = photoRepository;
+            this.tagRepository = tagRepository;
         }
 
         [HttpGet]
-        public IActionResult Index()
+        public async Task<IActionResult> Index(CancellationToken cancellationToken)
         {
-            var data = _dataProvider.Images
-                .SelectMany(i => i.Tags)
-                .GroupBy(t => t)
-                .Select(grp => (Tag: grp.Key, Count: grp.Count()))
-                .ToList();
+            var data = await this.tagRepository.GetMostUsedTags(cancellationToken);
 
-            return View(data);
+            return View(data.Select(_ => (_.Text, _.PhotoTag.Count)));
         }
 
         [HttpGet]
-        public IActionResult Search(string query)
+        public async Task<IActionResult> Search(string query, CancellationToken cancellationToken)
         {
-            var images = _dataProvider.Images.Where(i => i.Tags.Contains(query))
-                .Select(i => new SearchResult {ImagePath = i.File, Tags = i.Tags})
-                .ToArray();
+            var images = await this.photoRepository.GetPhotosByTag(query, cancellationToken);
 
-            return View(images);
+            return View(images.Select(_ =>
+                    new SearchResult {ImagePath = _.Id.ToString(), Tags = _.PhotoTag.Select(__ => __.Tag.Text).ToArray()})
+                .ToArray());
         }
 
         [HttpGet]

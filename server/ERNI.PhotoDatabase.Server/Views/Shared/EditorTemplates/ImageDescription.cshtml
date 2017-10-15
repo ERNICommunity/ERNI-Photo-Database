@@ -1,12 +1,12 @@
 ﻿@model ERNI.PhotoDatabase.Server.Model.ImageDescription
 
 <div class="row">
-    <input type="hidden" asp-for="Filename"/>
+    <input type="hidden" asp-for="Id"/>
     <div class="col">
         <div class="card">
-            <img class="card-img-top" src="@Url.Action("Thumbnail", "Image", new {id = Model.Filename})" alt="@Model.Filename">
+            <img class="card-img-top" src="@Url.Action("Thumbnail", "Photo", new {id = Model.Id})" alt="@Model.Id">
             <div class="card-body">
-                <h4 class="card-title">@Model.Filename</h4>
+                <h4 class="card-title">@Model.Id</h4>
             </div>
         </div>
     </div>
