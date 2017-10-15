@@ -19,6 +19,7 @@
                             <a asp-controller="Home" asp-action="Search" asp-route-query="@tag" class="badge badge-primary">@tag</a>
                         }
                     </p>
+                    <a asp-controller="Tag" asp-action="Index" asp-route-fileIds="@sr.Id"><span class="fa fa-tag"></span> Edit tags</a>
                 </div>
             </div>
         </div>
