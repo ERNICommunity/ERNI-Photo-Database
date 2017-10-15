@@ -1,12 +1,12 @@
 ﻿namespace ERNI.PhotoDatabase.DataAccess.Repository
 {
-    public class RepositoryBase
+    internal abstract class RepositoryBase
     {
         protected RepositoryBase(DatabaseContext dbContext)
         {
-            DbContext = dbContext;
+            this.DbContext = dbContext;
         }
 
-        protected DatabaseContext DbContext { get; set; }
+        protected DatabaseContext DbContext { get; }
     }
 }

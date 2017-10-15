@@ -1,45 +1,55 @@
 ﻿using System;
-using System.Linq;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using ERNI.PhotoDatabase.DataAccess.Repository;
+using ERNI.PhotoDatabase.DataAccess.UnitOfWork;
 using ERNI.PhotoDatabase.Server.Model;
-using ERNI.PhotoDatabase.Server.Obsolete;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ERNI.PhotoDatabase.Server.Controllers
 {
     public class TagController : Controller
     {
-        private readonly DataProvider provider;
+        private readonly ITagRepository tagRepository;
+        private readonly IUnitOfWork unitOfWork;
 
-        public TagController(DataProvider provider)
+        public TagController(ITagRepository tagRepository, IUnitOfWork unitOfWork)
         {
-            this.provider = provider;
+            this.tagRepository = tagRepository;
+            this.unitOfWork = unitOfWork;
         }
 
         [HttpGet]
-        public IActionResult Index(string[] files)
+        public async Task<IActionResult> Index(int[] files, CancellationToken cancellationToken)
         {
-            var f = this.provider.Images.Where(_ => files.Contains(_.File))
-                .Select(_ => new ImageDescription {Filename = _.File}).ToArray();
+            var uploadedFiles = new List<ImageDescription>();
 
-            return View(new UploadResult {Images = f});
+            foreach (var file in files)
+            {
+                uploadedFiles.Add(new ImageDescription {Id = file});
+            }
+
+            return this.View(new UploadResult {Images = uploadedFiles.ToArray()});
         }
 
         [HttpPost]
-        public IActionResult Save([FromForm]UploadResult taggedResults)
+        public async Task<IActionResult> Save([FromForm]UploadResult taggedResults, CancellationToken cancellationToken)
         {
-            foreach (var image in taggedResults.Images)
+            using (var t = await this.unitOfWork.BeginTransaction(cancellationToken))
             {
-                var match = this.provider.Images.SingleOrDefault(_ => _.File == image.Filename);
-
-                if (match == null)
+                foreach (var image in taggedResults.Images)
                 {
-                    continue;
+                    var tags = image.Tags?.Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
+                    await this.tagRepository.SetTagsForImage(image.Id, tags, cancellationToken);
+
+                    await this.unitOfWork.SaveChanges(cancellationToken);
                 }
 
-                match.Tags = image.Tags?.Split(new[] {' ', ',', ';'}, StringSplitOptions.RemoveEmptyEntries);
+                t.Commit();
             }
 
-            return RedirectToAction("Index", "Home");
+            return this.RedirectToAction("Index", "Home");
         }
     }
 }

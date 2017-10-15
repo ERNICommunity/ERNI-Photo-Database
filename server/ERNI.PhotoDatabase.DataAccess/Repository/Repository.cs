@@ -2,9 +2,10 @@
 
 namespace ERNI.PhotoDatabase.DataAccess.Repository
 {
-    public class Repository : IRepository, IDisposable
+    internal class Repository : IRepository, IDisposable
     {
         private readonly Lazy<IPhotoRepository> _photoRepository;
+        private readonly Lazy<ITagRepository> _tagRepository;
 
         private DatabaseContext _dbContext;
         private bool _disposed;
@@ -12,16 +13,18 @@ namespace ERNI.PhotoDatabase.DataAccess.Repository
         public Repository(DatabaseContext dbContext)
         {
             _dbContext = dbContext;
-            _photoRepository = new Lazy<IPhotoRepository>(() => new PhotoRepository(_dbContext));
+            _photoRepository = new Lazy<IPhotoRepository>(() => new PhotoRepository(this._dbContext));
+            _tagRepository = new Lazy<ITagRepository>(() => new TagRepository(this._dbContext));
         }
 
-        public IPhotoRepository PhotoRepository => _photoRepository.Value;
+        public IPhotoRepository PhotoRepository => this._photoRepository.Value;
+        public ITagRepository TagRepository => this._tagRepository.Value;
 
         #region IDisposable
 
         public void Dispose()
         {
-            Dispose(true);
+            this.Dispose(true);
             GC.SuppressFinalize(this);
         }
 

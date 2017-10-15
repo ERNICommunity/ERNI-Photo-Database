@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace ERNI.PhotoDatabase.DataAccess.Images
+﻿namespace ERNI.PhotoDatabase.DataAccess.Images
 {
     public class ImageStoreConfiguration
     {
