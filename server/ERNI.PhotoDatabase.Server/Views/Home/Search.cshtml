@@ -10,9 +10,9 @@
     {
         <div class="col">
             <div class="card">
-                <img class="card-img-top" src="@Url.Action("Thumbnail", "Photo", new { id = sr.ImagePath })" alt="@sr.ImagePath">
+                <img class="card-img-top" src="@Url.Action("Thumbnail", "Photo", new { id = sr.Id })" alt="@sr.Name">
                 <div class="card-body">
-                    <h4 class="card-title">@sr.ImagePath</h4>
+                    <h4 class="card-title">@sr.Name</h4>
                     <p class="card-text tags">
                         @foreach(var tag in sr.Tags)
                         {

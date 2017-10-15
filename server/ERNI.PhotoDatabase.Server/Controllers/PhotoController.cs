@@ -32,7 +32,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
         [HttpGet]
         public async Task<IActionResult> Get(CancellationToken cancellationToken)
         {
-            var photos = await this.repository.GetPhotos(cancellationToken);
+            var photos = await this.repository.GetAllPhotos(cancellationToken);
             return Ok(photos);
         }
 
@@ -116,7 +116,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
 
             await this.unitOfwork.SaveChanges(cancellationToken);
 
-            return RedirectToAction("Index", "Tag", new {files = photos.Select(_ => _.Id).ToList()});
+            return RedirectToAction("Index", "Tag", new {fileIds = photos.Select(_ => _.Id).ToList()});
         }
     }
 }

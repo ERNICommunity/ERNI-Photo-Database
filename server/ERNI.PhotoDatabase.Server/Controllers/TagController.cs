@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,25 +13,26 @@ namespace ERNI.PhotoDatabase.Server.Controllers
     public class TagController : Controller
     {
         private readonly ITagRepository tagRepository;
+        private readonly IPhotoRepository phootRepository;
         private readonly IUnitOfWork unitOfWork;
 
-        public TagController(ITagRepository tagRepository, IUnitOfWork unitOfWork)
+        public TagController(ITagRepository tagRepository, IPhotoRepository photoRepository, IUnitOfWork unitOfWork)
         {
             this.tagRepository = tagRepository;
+            this.phootRepository = photoRepository;
             this.unitOfWork = unitOfWork;
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(int[] files, CancellationToken cancellationToken)
+        public async Task<IActionResult> Index(int[] fileIds, CancellationToken cancellationToken)
         {
-            var uploadedFiles = new List<ImageDescription>();
+            var uploadedFiles = await this.phootRepository.GetPhotos(fileIds, cancellationToken);
 
-            foreach (var file in files)
-            {
-                uploadedFiles.Add(new ImageDescription {Id = file});
-            }
-
-            return this.View(new UploadResult {Images = uploadedFiles.ToArray()});
+            return this.View(new UploadResult {Images = uploadedFiles.Select(p => new ImageDescription {
+                Id = p.Id,
+                Name = p.Name,
+                Tags = string.Join(", ", p.PhotoTag.Select(t => t.Tag.Text))
+            }).ToArray()});
         }
 
         [HttpPost]

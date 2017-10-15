@@ -23,9 +23,15 @@ namespace ERNI.PhotoDatabase.DataAccess.Repository
             return query.ToListAsync(cancellationToken);
         }
 
-        public Task<List<Photo>> GetPhotos(CancellationToken cancellationToken)
+        public Task<List<Photo>> GetAllPhotos(CancellationToken cancellationToken)
         {
             return this.DbContext.Photos.Include(p => p.PhotoTag).ThenInclude(pt => pt.Tag).ToListAsync(cancellationToken);
+        }
+
+        public Task<List<Photo>> GetPhotos(IEnumerable<int> ids, CancellationToken cancellationToken)
+        {
+            return this.DbContext.Photos.Include(p => p.PhotoTag).ThenInclude(pt => pt.Tag)
+                .Where(p => ids.Contains(p.Id)).ToListAsync(cancellationToken);
         }
 
         public Task<Photo> GetPhoto(int id, CancellationToken cancellationToken)
