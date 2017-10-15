@@ -2,7 +2,7 @@
 
 namespace ERNI.PhotoDatabase.DataAccess.Repository
 {
-    public class Repository : IRepository, IDisposable
+    internal class Repository : IRepository, IDisposable
     {
         private readonly Lazy<IPhotoRepository> _photoRepository;
         private readonly Lazy<ITagRepository> _tagRepository;

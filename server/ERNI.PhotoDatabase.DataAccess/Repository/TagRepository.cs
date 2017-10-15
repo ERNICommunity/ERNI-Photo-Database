@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ERNI.PhotoDatabase.DataAccess.Repository
 {
-    public class TagRepository : RepositoryBase, ITagRepository
+    internal class TagRepository : RepositoryBase, ITagRepository
     {
         public TagRepository(DatabaseContext dbContext)
             : base(dbContext)
@@ -29,6 +30,8 @@ namespace ERNI.PhotoDatabase.DataAccess.Repository
 
         public async Task SetTagsForImage(int photoId, string[] tags, CancellationToken cancellationToken)
         {
+            tags = tags ?? Array.Empty<string>();
+
             var photo = await this.DbContext.Photos.Include(p => p.PhotoTag).ThenInclude(pt => pt.Tag)
                 .SingleOrDefaultAsync(_ => _.Id == photoId, cancellationToken);
 

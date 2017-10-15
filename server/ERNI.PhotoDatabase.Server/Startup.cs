@@ -1,14 +1,14 @@
 using System;
 using System.Threading.Tasks;
 using System.Threading;
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using ERNI.PhotoDatabase.DataAccess;
-using ERNI.PhotoDatabase.DataAccess.Repository;
-using ERNI.PhotoDatabase.DataAccess.UnitOfWork;
 
 namespace ERNI.PhotoDatabase.Server
 {
@@ -22,18 +22,17 @@ namespace ERNI.PhotoDatabase.Server
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<DatabaseContext>(options => options.UseSqlServer(Configuration.GetValue<string>("ConnectionString")));
 
-            services.AddScoped<IPhotoRepository, PhotoRepository>();
-            services.AddScoped<ITagRepository, TagRepository>();
-
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-            services.AddSingleton<DataAccess.Images.ImageStoreConfiguration>();
-            services.AddScoped<DataAccess.Images.ImageStore>();
             services.AddMvc();
+
+            var builder = new ContainerBuilder();
+            builder.RegisterModule<MainModule>();
+            builder.Populate(services);
+
+            return new AutofacServiceProvider(builder.Build());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -55,7 +54,7 @@ namespace ERNI.PhotoDatabase.Server
                 context.Database.EnsureCreated();
             }
 
-            ConfigureImageStore(app.ApplicationServices).Wait();
+            this.ConfigureImageStore(app.ApplicationServices).Wait();
 
             app.UseStaticFiles();
 
