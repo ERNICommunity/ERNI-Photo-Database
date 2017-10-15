@@ -16,10 +16,14 @@
                     <p class="card-text tags">
                         @foreach(var tag in sr.Tags)
                         {
-                            <a asp-controller="Home" asp-action="Search" asp-route-query="@tag" class="badge badge-primary">@tag</a>
+                            <a asp-controller="Home" asp-action="Search" asp-route-query="@tag" class="badge badge-primary">
+                                <i class="fa fa-tag" aria-hidden="true"></i> @tag
+                            </a>
                         }
                     </p>
-                    <a asp-controller="Tag" asp-action="Index" asp-route-fileIds="@sr.Id"><span class="fa fa-tag"></span> Edit tags</a>
+                    <a asp-controller="Tag" asp-action="Index" asp-route-fileIds="@sr.Id">
+                        <i class="fa fa-tag" aria-hidden="true"></i> Edit tags
+                    </a>
                 </div>
             </div>
         </div>
