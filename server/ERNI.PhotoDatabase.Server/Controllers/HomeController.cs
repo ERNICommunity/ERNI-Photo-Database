@@ -22,7 +22,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
         {
             var data = await this.tagRepository.GetMostUsedTags(cancellationToken);
 
-            return View(data.Select(_ => (_.Text, _.PhotoTag.Count)));
+            return View(data.Select(_ => (_.Text, _.PhotoTags.Count)));
         }
 
         [HttpGet]
@@ -31,7 +31,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
             var images = await this.photoRepository.GetPhotosByTag(query, cancellationToken);
 
             return View(images.Select(_ =>
-                    new SearchResult {Id = _.Id.ToString(), Name = _.Name, Tags = _.PhotoTag.Select(__ => __.Tag.Text).ToArray()})
+                    new SearchResult {Id = _.Id.ToString(), Name = _.Name, Tags = _.PhotoTags.Select(__ => __.Tag.Text).ToArray()})
                 .ToArray());
         }
 

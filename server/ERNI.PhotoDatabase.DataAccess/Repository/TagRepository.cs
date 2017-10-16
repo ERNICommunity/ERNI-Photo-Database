@@ -17,7 +17,7 @@ namespace ERNI.PhotoDatabase.DataAccess.Repository
 
         public Task<List<Tag>> GetMostUsedTags(CancellationToken cancellationToken)
         {
-            var query = this.DbContext.Tags.Include(_ => _.PhotoTag).OrderByDescending(_ => _.PhotoTag.Count);
+            var query = this.DbContext.Tags.Include(_ => _.PhotoTags).OrderByDescending(_ => _.PhotoTags.Count);
 
             return query.ToListAsync(cancellationToken);
         }
@@ -32,18 +32,18 @@ namespace ERNI.PhotoDatabase.DataAccess.Repository
         {
             tags = tags ?? Array.Empty<string>();
 
-            var photo = await this.DbContext.Photos.Include(p => p.PhotoTag).ThenInclude(pt => pt.Tag)
+            var photo = await this.DbContext.Photos.Include(p => p.PhotoTags).ThenInclude(pt => pt.Tag)
                 .SingleOrDefaultAsync(_ => _.Id == photoId, cancellationToken);
 
-            foreach (var photoTag in photo.PhotoTag.ToList())
+            foreach (var photoTag in photo.PhotoTags.ToList())
             {
                 if (!tags.Contains(photoTag.Tag.Text))
                 {
-                    photo.PhotoTag.Remove(photoTag);
+                    photo.PhotoTags.Remove(photoTag);
                 }
             }
 
-            var existingTags = new HashSet<string>(photo.PhotoTag.Select(_ => _.Tag.Text));
+            var existingTags = new HashSet<string>(photo.PhotoTags.Select(_ => _.Tag.Text));
             var addedTags = tags.Except(existingTags);
 
             var allTags = await this.DbContext.Tags.ToDictionaryAsync(_ => _.Text, cancellationToken);
@@ -57,7 +57,7 @@ namespace ERNI.PhotoDatabase.DataAccess.Repository
                     this.DbContext.Tags.Add(existing);
                 }
 
-                photo.PhotoTag.Add(new PhotoTag {Tag = existing});
+                photo.PhotoTags.Add(new PhotoTag {Tag = existing});
             }
         }
     }

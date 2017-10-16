@@ -8,8 +8,6 @@ namespace ERNI.PhotoDatabase.DataAccess.EntityConfiguration
     {
         public override void Configure(EntityTypeBuilder<Tag> builder)
         {
-            builder.ToTable("Tag");
-
             builder.HasKey(p => p.Id);
             builder.Property(p => p.Text).IsRequired();
 

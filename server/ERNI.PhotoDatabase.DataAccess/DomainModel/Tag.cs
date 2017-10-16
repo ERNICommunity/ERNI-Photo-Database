@@ -7,6 +7,6 @@ namespace ERNI.PhotoDatabase.DataAccess.DomainModel
         public int Id { get; set; }
         public string Text { get; set; }
 
-        public List<PhotoTag> PhotoTag { get; set; }
+        public List<PhotoTag> PhotoTags { get; set; }
     }
 }
