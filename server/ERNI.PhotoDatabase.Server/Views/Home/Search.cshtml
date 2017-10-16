@@ -10,15 +10,20 @@
     {
         <div class="col">
             <div class="card">
-                <img class="card-img-top" src="@Url.Action("Thumbnail", "Photo", new { id = sr.ImagePath })" alt="@sr.ImagePath">
+                <img class="card-img-top" src="@Url.Action("Thumbnail", "Photo", new { id = sr.Id })" alt="@sr.Name">
                 <div class="card-body">
-                    <h4 class="card-title">@sr.ImagePath</h4>
+                    <h4 class="card-title">@sr.Name</h4>
                     <p class="card-text tags">
                         @foreach(var tag in sr.Tags)
                         {
-                            <a asp-controller="Home" asp-action="Search" asp-route-query="@tag" class="badge badge-primary">@tag</a>
+                            <a asp-controller="Home" asp-action="Search" asp-route-query="@tag" class="badge badge-primary">
+                                <i class="fa fa-tag" aria-hidden="true"></i> @tag
+                            </a>
                         }
                     </p>
+                    <a asp-controller="Tag" asp-action="Index" asp-route-fileIds="@sr.Id">
+                        <i class="fa fa-tag" aria-hidden="true"></i> Edit tags
+                    </a>
                 </div>
             </div>
         </div>

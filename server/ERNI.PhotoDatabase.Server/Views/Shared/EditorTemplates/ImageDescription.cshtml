@@ -4,9 +4,9 @@
     <input type="hidden" asp-for="Id"/>
     <div class="col">
         <div class="card">
-            <img class="card-img-top" src="@Url.Action("Thumbnail", "Photo", new {id = Model.Id})" alt="@Model.Id">
+            <img class="card-img-top" src="@Url.Action("Thumbnail", "Photo", new {id = Model.Id})" alt="@Model.Name">
             <div class="card-body">
-                <h4 class="card-title">@Model.Id</h4>
+                <h4 class="card-title">@Model.Name</h4>
             </div>
         </div>
     </div>

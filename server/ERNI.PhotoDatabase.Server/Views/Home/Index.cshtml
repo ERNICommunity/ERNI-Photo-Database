@@ -4,10 +4,13 @@
     ViewData["Title"] = "Tag Cloud";
 }
 
-<div class="row search-result">
+<div class="tag-cloud"></div>
     @foreach (var item in Model)
     {
-        <a asp-controller="Home" asp-action="Search" asp-route-query="@item.Tag" class="badge badge-primary">@item.Tag</a>
+        <a class="badge badge-primary" asp-controller="Home" asp-action="Search" asp-route-query="@item.Tag">
+            <i class="fa fa-tag" aria-hidden="true"></i>
+            @item.Tag (@item.Count)
+        </a>
     }
 </div>
 
