@@ -31,7 +31,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
             return this.View(new UploadResult {Images = uploadedFiles.Select(p => new ImageDescription {
                 Id = p.Id,
                 Name = p.Name,
-                Tags = string.Join(", ", p.PhotoTag.Select(t => t.Tag.Text))
+                Tags = string.Join(", ", p.PhotoTags.Select(t => t.Tag.Text))
             }).ToArray()});
         }
 
