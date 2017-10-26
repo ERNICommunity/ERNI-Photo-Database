@@ -12,7 +12,6 @@ namespace ERNI.PhotoDatabase.DataAccess
         {
             base.Load(builder);
 
-            builder.RegisterType<Repository.Repository>().As<IRepository>().InstancePerLifetimeScope();
             builder.RegisterType<PhotoRepository>().As<IPhotoRepository>().InstancePerLifetimeScope();
             builder.RegisterType<TagRepository>().As<ITagRepository>().InstancePerLifetimeScope();
 
