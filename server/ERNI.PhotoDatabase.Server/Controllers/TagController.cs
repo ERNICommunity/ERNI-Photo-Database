@@ -39,18 +39,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
         [HttpPost]
         public async Task<IActionResult> Save([FromForm]UploadResult taggedResults, CancellationToken cancellationToken)
         {
-            using (var t = await this.unitOfWork.BeginTransaction(cancellationToken))
-            {
-                foreach (var image in taggedResults.Images)
-                {
-                    var tags = image.Tags?.Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
-                    await this.tagRepository.SetTagsForImage(image.Id, tags, cancellationToken);
-
-                    await this.unitOfWork.SaveChanges(cancellationToken);
-                }
-
-                t.Commit();
-            }
+            await SaveTags(taggedResults, cancellationToken);
 
             return this.RedirectToAction("Index", "Home");
         }
@@ -63,6 +52,13 @@ namespace ERNI.PhotoDatabase.Server.Controllers
                 return StatusCode((int)HttpStatusCode.BadRequest);
             }
 
+            await SaveTags(taggedResults, cancellationToken);
+
+            return this.RedirectToAction("Index", "Detail", new { id = taggedResults.Images.Single().Id });
+        }
+
+        private async Task SaveTags(UploadResult taggedResults, CancellationToken cancellationToken)
+        {
             using (var t = await this.unitOfWork.BeginTransaction(cancellationToken))
             {
                 foreach (var image in taggedResults.Images)
@@ -75,8 +71,6 @@ namespace ERNI.PhotoDatabase.Server.Controllers
 
                 t.Commit();
             }
-
-            return this.RedirectToAction("Index", "Detail", new { id = taggedResults.Images.Single().Id });
         }
     }
 }
