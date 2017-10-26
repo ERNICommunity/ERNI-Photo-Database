@@ -5,5 +5,7 @@
         public string Name { get; set; }
         public string Id { get; set; }
         public string[] Tags { get; set; }
+        public int Width { get; set; }
+        public int Height { get; set; }
     }
 }

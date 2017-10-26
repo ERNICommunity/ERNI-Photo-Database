@@ -1,0 +1,47 @@
+﻿@using ERNI.PhotoDatabase.Server.Configuration
+@using Microsoft.Extensions.Options
+@model ERNI.PhotoDatabase.Server.Controllers.SearchResult
+@{
+    ViewData["Title"] = $"Photo - {Model.Name}";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@inject IOptions<ImageSizesSettings> ImageSettings
+
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <img class="card-img-top" src="@Url.Action("Thumbnail", "Photo", new { id = Model.Id })" alt="@Model.Name">
+                
+            <div class="card-body">
+                <h4 class="card-title">@Model.Name</h4>
+                <p class="card-text tags">
+                    @foreach (var tag in Model.Tags)
+                    {
+                        <a asp-controller="Home" asp-action="Search" asp-route-query="@tag" class="badge badge-primary">
+                            <i class="fa fa-tag" aria-hidden="true"></i> @tag
+                        </a>
+                    }
+                </p>
+                <a asp-controller="Tag" asp-action="Index" asp-route-fileIds="@Model.Id">
+                    <i class="fa fa-tag" aria-hidden="true"></i> Edit tags
+                </a>
+            </div>
+        </div>
+    </div>  
+    <div class="col">
+        <div>Downloads</div>
+        <ul>
+            <li>
+                <a asp-controller="Photo" asp-action="Download" asp-route-id="@Model.Id">Full size (@Model.Width x @Model.Height)</a>
+            </li>
+            
+            @foreach (var size in ImageSettings.Value.Download)
+            {
+                <li>
+                    <a asp-controller="Photo" asp-action="Download" asp-route-id="@Model.Id" asp-route-size="@size">@size px</a>
+                </li>
+            }
+        </ul>
+    </div>
+</div>
+

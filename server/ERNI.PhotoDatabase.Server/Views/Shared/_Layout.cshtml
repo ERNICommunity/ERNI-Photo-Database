@@ -25,8 +25,8 @@
                 </li>
             </ul>
             <form asp-controller="Home" asp-action="Search" method="get" asp-antiforgery="false" class="form-inline my-2 my-lg-0">
-                <input type="text" placeholder="Search" aria-label="Search" name="query" class="form-control mr-sm-2"/>
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                <input id="search-field" type="text" placeholder="Search" aria-label="Search" name="query" class="form-control mr-sm-2" onkeypress="$('#search-button').prop('disabled', $('#search-field').val() === '')" />
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit" id="search-button" disabled="disabled">Search</button>
             </form>
         </div>
     </nav>

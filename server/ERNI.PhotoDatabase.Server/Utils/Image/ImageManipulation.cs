@@ -4,17 +4,16 @@ using SkiaSharp;
 
 namespace ERNI.PhotoDatabase.Server.Utils.Image
 {
-    public static class ImageManipulation
+    public class ImageManipulation : IImageManipulation
     {
-        public static byte[] CreateThumbnailFrom(byte[] sourceImageData)
+        public byte[] ResizeTo(byte[] sourceImageData, int size)
         {
             using (var ms = new MemoryStream(sourceImageData))
             using (var inputStream = new SKManagedStream(ms, false))
             using (var sourceBitmap = SKBitmap.Decode(inputStream))
             {
                 var sourceSize = Math.Max(sourceBitmap.Width, sourceBitmap.Height);
-                const int thumbnailSize = 640;
-                var ratio = thumbnailSize / (double)sourceSize;
+                var ratio = size / (double)sourceSize;
 
                 using (var targetBitmap = new SKBitmap(new SKImageInfo((int)(sourceBitmap.Width * ratio), (int)(sourceBitmap.Height * ratio))))
                 using (var targetMemoryStream = new MemoryStream())
@@ -26,6 +25,16 @@ namespace ERNI.PhotoDatabase.Server.Utils.Image
                     thumbnailStream.Flush();
                     return targetMemoryStream.ToArray();
                 }
+            }
+        }
+
+        public (int Width, int Height) GetSize(byte[] imageData)
+        {
+            using (var ms = new MemoryStream(imageData))
+            using (var inputStream = new SKManagedStream(ms, false))
+            using (var sourceBitmap = SKBitmap.Decode(inputStream))
+            {
+                return (sourceBitmap.Width, sourceBitmap.Height);
             }
         }
     }

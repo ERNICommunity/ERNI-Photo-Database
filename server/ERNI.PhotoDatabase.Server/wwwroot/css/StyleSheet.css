@@ -13,3 +13,8 @@
 .search-result .card {
     width: 20rem;
 }
+
+.save-button-row {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}

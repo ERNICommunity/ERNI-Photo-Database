@@ -30,9 +30,14 @@ namespace ERNI.PhotoDatabase.Server.Controllers
         {
             var images = await this.photoRepository.GetPhotosByTag(query, cancellationToken);
 
-            return View(images.Select(_ =>
-                    new SearchResult {Id = _.Id.ToString(), Name = _.Name, Tags = _.PhotoTags.Select(__ => __.Tag.Text).ToArray()})
-                .ToArray());
+            return View(images.Select(_ => new SearchResult
+            {
+                Id = _.Id.ToString(),
+                Name = _.Name,
+                Tags = _.PhotoTags.Select(__ => __.Tag.Text).ToArray(),
+                Width = _.Width,
+                Height = _.Height
+            }).ToArray());
         }
 
         [HttpGet]
