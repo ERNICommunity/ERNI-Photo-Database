@@ -25,8 +25,6 @@ namespace ERNI.PhotoDatabase.Server
         // This method gets called by the runtime. Use this method to add services to the container.
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
-            services.AddOptions();
-
             services.Configure<ImageSizesSettings>(Configuration.GetSection("ImageSizes"));
 
             services.AddDbContext<DatabaseContext>(options => options.UseSqlServer(Configuration.GetValue<string>("ConnectionString")));
