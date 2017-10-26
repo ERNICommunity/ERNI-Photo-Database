@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using ERNI.PhotoDatabase.DataAccess.Repository;
@@ -52,6 +53,30 @@ namespace ERNI.PhotoDatabase.Server.Controllers
             }
 
             return this.RedirectToAction("Index", "Home");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SaveOne([FromForm]UploadResult taggedResults, CancellationToken cancellationToken)
+        {
+            if (taggedResults.Images.Length != 1)
+            {
+                return StatusCode((int)HttpStatusCode.BadRequest);
+            }
+
+            using (var t = await this.unitOfWork.BeginTransaction(cancellationToken))
+            {
+                foreach (var image in taggedResults.Images)
+                {
+                    var tags = image.Tags?.Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
+                    await this.tagRepository.SetTagsForImage(image.Id, tags, cancellationToken);
+
+                    await this.unitOfWork.SaveChanges(cancellationToken);
+                }
+
+                t.Commit();
+            }
+
+            return this.RedirectToAction("Index", "Detail", new { id = taggedResults.Images.Single().Id });
         }
     }
 }

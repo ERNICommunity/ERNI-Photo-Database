@@ -27,5 +27,15 @@ namespace ERNI.PhotoDatabase.Server.Utils.Image
                 }
             }
         }
+
+        public (int Width, int Height) GetSize(byte[] imageData)
+        {
+            using (var ms = new MemoryStream(imageData))
+            using (var inputStream = new SKManagedStream(ms, false))
+            using (var sourceBitmap = SKBitmap.Decode(inputStream))
+            {
+                return (sourceBitmap.Width, sourceBitmap.Height);
+            }
+        }
     }
 }

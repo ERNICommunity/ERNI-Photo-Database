@@ -2,7 +2,7 @@
 @using Microsoft.Extensions.Options
 @model ERNI.PhotoDatabase.Server.Controllers.SearchResult
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = $"Photo - {Model.Name}";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @inject IOptions<ImageSizesSettings> ImageSettings
@@ -22,6 +22,9 @@
                         </a>
                     }
                 </p>
+                <a asp-controller="Tag" asp-action="Index" asp-route-fileIds="@Model.Id">
+                    <i class="fa fa-tag" aria-hidden="true"></i> Edit tags
+                </a>
             </div>
         </div>
     </div>  
@@ -29,7 +32,7 @@
         <div>Downloads</div>
         <ul>
             <li>
-                <a asp-controller="Photo" asp-action="Download" asp-route-id="@Model.Id">Full size</a>
+                <a asp-controller="Photo" asp-action="Download" asp-route-id="@Model.Id">Full size (@Model.Width x @Model.Height)</a>
             </li>
             
             @foreach (var size in ImageSettings.Value.Download)

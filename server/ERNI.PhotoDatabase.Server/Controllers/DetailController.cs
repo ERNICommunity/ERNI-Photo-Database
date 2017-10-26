@@ -28,7 +28,9 @@ namespace ERNI.PhotoDatabase.Server.Controllers
             {
                 Id = photo.Id.ToString(),
                 Name = photo.Name,
-                Tags = photo.PhotoTags.Select(_ => _.Tag.Text).ToArray()
+                Tags = photo.PhotoTags.Select(_ => _.Tag.Text).ToArray(),
+                Width = photo.Width,
+                Height = photo.Height
             });
         }
     }
