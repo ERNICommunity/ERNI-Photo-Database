@@ -17,7 +17,7 @@ namespace ERNI.PhotoDatabase.DataAccess.Repository
 
         public Task<List<Tag>> GetMostUsedTags(CancellationToken cancellationToken)
         {
-            var query = this.DbContext.Tags.Include(_ => _.PhotoTags).OrderByDescending(_ => _.PhotoTags.Count);
+            var query = this.DbContext.Tags.Include(t => t.PhotoTags).OrderByDescending(_ => _.PhotoTags.Count);
 
             return query.ToListAsync(cancellationToken);
         }
