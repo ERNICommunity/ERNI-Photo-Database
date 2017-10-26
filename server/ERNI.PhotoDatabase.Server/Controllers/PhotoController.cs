@@ -21,30 +21,38 @@ namespace ERNI.PhotoDatabase.Server.Controllers
     {
         private readonly Lazy<IPhotoRepository> repository;
         private readonly Lazy<ImageStore> imageStore;
-        private readonly Lazy<IUnitOfWork> unitOfwork;
+        private readonly Lazy<IUnitOfWork> unitOfWork;
         private readonly Lazy<IImageManipulation> imageTools;
         private readonly IOptions<ImageSizesSettings> settings;
 
-        public PhotoController(Lazy<IPhotoRepository> repository, Lazy<ImageStore> imageStore, Lazy<IUnitOfWork> unitOfwork, Lazy<IImageManipulation> imageTools, IOptions<ImageSizesSettings> settings)
+        public PhotoController(Lazy<IPhotoRepository> repository, Lazy<ImageStore> imageStore, Lazy<IUnitOfWork> unitOfWork, Lazy<IImageManipulation> imageTools, IOptions<ImageSizesSettings> settings)
         {
             this.repository = repository;
             this.imageStore = imageStore;
-            this.unitOfwork = unitOfwork;
+            this.unitOfWork = unitOfWork;
             this.imageTools = imageTools;
             this.settings = settings;
         }
-        
+
+        private IPhotoRepository Repository => repository.Value;
+
+        private ImageStore ImageStore => imageStore.Value;
+
+        private IUnitOfWork UnitOfWork => unitOfWork.Value;
+
+        private IImageManipulation ImageTools => imageTools.Value;
+
         [HttpGet]
         public async Task<IActionResult> Get(CancellationToken cancellationToken)
         {
-            var photos = await this.repository.Value.GetAllPhotos(cancellationToken);
+            var photos = await this.Repository.GetAllPhotos(cancellationToken);
             return Ok(photos);
         }
         
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id, CancellationToken cancellationToken)
         {
-            var photo = await this.repository.Value.GetPhoto(id, cancellationToken);
+            var photo = await this.Repository.GetPhoto(id, cancellationToken);
 
             return Ok(photo);
         }
@@ -52,20 +60,20 @@ namespace ERNI.PhotoDatabase.Server.Controllers
         [HttpGet("{id}/download/{size?}")]
         public async Task<IActionResult> Download(int id, int? size, CancellationToken cancellationToken)
         {
-            var photo = await this.repository.Value.GetPhoto(id, cancellationToken);
+            var photo = await this.Repository.GetPhoto(id, cancellationToken);
 
             if (photo == null)
             {
                 return NotFound();
             }
 
-            var image = await this.imageStore.Value.GetImageBlobAsync(photo.FullSizeImageId, cancellationToken);
+            var image = await this.ImageStore.GetImageBlobAsync(photo.FullSizeImageId, cancellationToken);
 
             var data = image.Content;
 
             if (size != null)
             {
-                data = imageTools.Value.ResizeTo(image.Content, size.Value);
+                data = ImageTools.ResizeTo(image.Content, size.Value);
             }
 
             return File(data, photo.Mime, photo.Name);
@@ -74,14 +82,14 @@ namespace ERNI.PhotoDatabase.Server.Controllers
         [HttpGet("{id}/thumbnail")]
         public async Task<IActionResult> Thumbnail(int id, CancellationToken cancellationToken)
         {
-            var photo = await this.repository.Value.GetPhoto(id, cancellationToken);
+            var photo = await this.Repository.GetPhoto(id, cancellationToken);
 
             if (photo == null)
             {
                 return NotFound();
             }
 
-            var image = await this.imageStore.Value.GetImageBlobAsync(photo.ThumbnailImageId, cancellationToken);
+            var image = await this.ImageStore.GetImageBlobAsync(photo.ThumbnailImageId, cancellationToken);
 
             return File(image.Content, "image/jpeg");
         }
@@ -89,7 +97,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
         [HttpGet("search/tag/{tag}")]
         public async Task<IActionResult> GetImagesByTag(string tag, CancellationToken cancellationToken)
         {
-            var photos = await this.repository.Value.GetPhotosByTag(tag, cancellationToken);
+            var photos = await this.Repository.GetPhotosByTag(tag, cancellationToken);
 
             return Ok(photos);
         }
@@ -112,21 +120,21 @@ namespace ERNI.PhotoDatabase.Server.Controllers
                     var data = new byte[formFile.Length];
                     openReadStream.Read(data, 0, data.Length);
 
-                    var thumbnailData = imageTools.Value.ResizeTo(data, this.settings.Value.Thumbnail);
-                    var (width, height) = imageTools.Value.GetSize(data);
+                    var thumbnailData = ImageTools.ResizeTo(data, this.settings.Value.Thumbnail);
+                    var (width, height) = ImageTools.GetSize(data);
 
                     var fullSizeBlob = new ImageBlob {Content = data, Id = Guid.NewGuid()};
                     var thumbnailBlob = new ImageBlob {Content = thumbnailData, Id = Guid.NewGuid()};
-                    await this.imageStore.Value.SaveImageBlobAsync(fullSizeBlob, cancellationToken);
-                    await this.imageStore.Value.SaveImageBlobAsync(thumbnailBlob, cancellationToken);
+                    await this.ImageStore.SaveImageBlobAsync(fullSizeBlob, cancellationToken);
+                    await this.ImageStore.SaveImageBlobAsync(thumbnailBlob, cancellationToken);
 
-                    var photo = this.repository.Value.StorePhoto(formFile.FileName, fullSizeBlob.Id, thumbnailBlob.Id, formFile.ContentType, width, height);
+                    var photo = this.Repository.StorePhoto(formFile.FileName, fullSizeBlob.Id, thumbnailBlob.Id, formFile.ContentType, width, height);
 
                     photos.Add(photo);
                 }
             }
 
-            await this.unitOfwork.Value.SaveChanges(cancellationToken);
+            await this.UnitOfWork.SaveChanges(cancellationToken);
 
             return RedirectToAction("Index", "Tag", new {fileIds = photos.Select(_ => _.Id).ToList()});
         }
