@@ -14,5 +14,7 @@ namespace ERNI.PhotoDatabase.DataAccess.DomainModel
         public Guid ThumbnailImageId { get; set; }
 
         public List<PhotoTag> PhotoTags { get; set; }
+
+        public string Mime { get; set; }
     }
 }

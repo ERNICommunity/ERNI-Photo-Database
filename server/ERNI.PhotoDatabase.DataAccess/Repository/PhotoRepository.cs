@@ -40,13 +40,14 @@ namespace ERNI.PhotoDatabase.DataAccess.Repository
                 .SingleOrDefaultAsync(_ => _.Id == id, cancellationToken);
         }
 
-        public Photo StorePhoto(string fileName, Guid fullSizeBlobId, Guid thumbnailBlobId)
+        public Photo StorePhoto(string fileName, Guid fullSizeBlobId, Guid thumbnailBlobId, string mime)
         {
             var photo = new Photo
             {
                 Name = fileName,
                 FullSizeImageId = fullSizeBlobId,
-                ThumbnailImageId = thumbnailBlobId
+                ThumbnailImageId = thumbnailBlobId,
+                Mime = mime
             };
 
             this.DbContext.Photos.Add(photo);

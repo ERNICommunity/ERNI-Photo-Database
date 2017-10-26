@@ -10,11 +10,14 @@
     {
         <div class="col">
             <div class="card">
-                <img class="card-img-top" src="@Url.Action("Thumbnail", "Photo", new { id = sr.Id })" alt="@sr.Name">
+                <a asp-controller="Detail" asp-action="Index" asp-route-id="@sr.Id">
+                    <img class="card-img-top" src="@Url.Action("Thumbnail", "Photo", new { id = sr.Id })" alt="@sr.Name">
+                </a>
+                
                 <div class="card-body">
                     <h4 class="card-title">@sr.Name</h4>
                     <p class="card-text tags">
-                        @foreach(var tag in sr.Tags)
+                        @foreach (var tag in sr.Tags)
                         {
                             <a asp-controller="Home" asp-action="Search" asp-route-query="@tag" class="badge badge-primary">
                                 <i class="fa fa-tag" aria-hidden="true"></i> @tag

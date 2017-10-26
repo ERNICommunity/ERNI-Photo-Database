@@ -8,8 +8,10 @@ using ERNI.PhotoDatabase.DataAccess.DomainModel;
 using ERNI.PhotoDatabase.DataAccess.Images;
 using ERNI.PhotoDatabase.DataAccess.Repository;
 using ERNI.PhotoDatabase.DataAccess.UnitOfWork;
+using ERNI.PhotoDatabase.Server.Configuration;
 using ERNI.PhotoDatabase.Server.Utils.Image;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 
 namespace ERNI.PhotoDatabase.Server.Controllers
 {
@@ -20,23 +22,25 @@ namespace ERNI.PhotoDatabase.Server.Controllers
         private readonly IPhotoRepository repository;
         private readonly ImageStore imageStore;
         private readonly IUnitOfWork unitOfwork;
+        private readonly IImageManipulation imageTools;
+        private readonly IOptions<ImageSizesSettings> settings;
 
-        public PhotoController(IPhotoRepository repository, ImageStore imageStore, IUnitOfWork unitOfwork)
+        public PhotoController(IPhotoRepository repository, ImageStore imageStore, IUnitOfWork unitOfwork, IImageManipulation imageTools, IOptions<ImageSizesSettings> settings)
         {
             this.repository = repository;
             this.imageStore = imageStore;
             this.unitOfwork = unitOfwork;
+            this.imageTools = imageTools;
+            this.settings = settings;
         }
-
-        // GET api/values
+        
         [HttpGet]
         public async Task<IActionResult> Get(CancellationToken cancellationToken)
         {
             var photos = await this.repository.GetAllPhotos(cancellationToken);
             return Ok(photos);
         }
-
-        // GET api/values/5
+        
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id, CancellationToken cancellationToken)
         {
@@ -45,8 +49,8 @@ namespace ERNI.PhotoDatabase.Server.Controllers
             return Ok(photo);
         }
 
-        [HttpGet("{id}/download")]
-        public async Task<IActionResult> Download(int id, CancellationToken cancellationToken)
+        [HttpGet("{id}/download/{size?}")]
+        public async Task<IActionResult> Download(int id, int? size, CancellationToken cancellationToken)
         {
             var photo = await this.repository.GetPhoto(id, cancellationToken);
 
@@ -57,7 +61,14 @@ namespace ERNI.PhotoDatabase.Server.Controllers
 
             var image = await this.imageStore.GetImageBlobAsync(photo.FullSizeImageId, cancellationToken);
 
-            return File(image.Content, "image/jpeg");
+            var data = image.Content;
+
+            if (size != null)
+            {
+                data = imageTools.ResizeTo(image.Content, size.Value);
+            }
+
+            return File(data, photo.Mime, photo.Name);
         }
 
         [HttpGet("{id}/thumbnail")]
@@ -101,14 +112,14 @@ namespace ERNI.PhotoDatabase.Server.Controllers
                     var data = new byte[formFile.Length];
                     openReadStream.Read(data, 0, data.Length);
 
-                    var thumbnailData = ImageManipulation.CreateThumbnailFrom(data);
+                    var thumbnailData = imageTools.ResizeTo(data, this.settings.Value.Thumbnail);
 
                     var fullSizeBlob = new ImageBlob {Content = data, Id = Guid.NewGuid()};
                     var thumbnailBlob = new ImageBlob {Content = thumbnailData, Id = Guid.NewGuid()};
                     await this.imageStore.SaveImageBlobAsync(fullSizeBlob, cancellationToken);
                     await this.imageStore.SaveImageBlobAsync(thumbnailBlob, cancellationToken);
 
-                    var photo = this.repository.StorePhoto(formFile.FileName, fullSizeBlob.Id, thumbnailBlob.Id);
+                    var photo = this.repository.StorePhoto(formFile.FileName, fullSizeBlob.Id, thumbnailBlob.Id, formFile.ContentType);
 
                     photos.Add(photo);
                 }
