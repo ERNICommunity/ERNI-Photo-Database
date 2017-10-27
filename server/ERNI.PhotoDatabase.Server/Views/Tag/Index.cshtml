@@ -31,6 +31,15 @@
 
 @section Scripts
 {
-    <link rel="stylesheet" href="~/css/tagsinput.css" />
-    <script src="~/js/tagsinput.js"></script>
+    <link rel="stylesheet" href="css/tagsinput.css" />
+    <link rel="stylesheet" href="css/typeaheadjs.css" />
+
+    <script src="js/tagsinput.js"></script>
+    <script src="https://twitter.github.io/typeahead.js/releases/latest/typeahead.bundle.js"></script>
+    <script src="js/taggingTypeahead.js"></script>
+
+    <script type="text/javascript">
+        initializeTagging('@Url.Action("GetTags")');
+    </script>
+
 }

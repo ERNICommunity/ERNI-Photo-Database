@@ -13,20 +13,27 @@ namespace ERNI.PhotoDatabase.Server.Controllers
     public class TagController : Controller
     {
         private readonly ITagRepository tagRepository;
-        private readonly IPhotoRepository phootRepository;
+        private readonly IPhotoRepository photoRepository;
         private readonly IUnitOfWork unitOfWork;
 
         public TagController(ITagRepository tagRepository, IPhotoRepository photoRepository, IUnitOfWork unitOfWork)
         {
             this.tagRepository = tagRepository;
-            this.phootRepository = photoRepository;
+            this.photoRepository = photoRepository;
             this.unitOfWork = unitOfWork;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetTags(string query, CancellationToken cancellationToken)
+        {
+            var allTags = await this.tagRepository.GetAllTags(cancellationToken);
+            return Json(allTags.Where(_ => _.Text.StartsWith(query)).Select(_ => _.Text).ToArray());
         }
 
         [HttpGet]
         public async Task<IActionResult> Index(int[] fileIds, CancellationToken cancellationToken)
         {
-            var uploadedFiles = await this.phootRepository.GetPhotos(fileIds, cancellationToken);
+            var uploadedFiles = await this.photoRepository.GetPhotos(fileIds, cancellationToken);
 
             return this.View(new UploadResult {Images = uploadedFiles.Select(p => new ImageDescription {
                 Id = p.Id,

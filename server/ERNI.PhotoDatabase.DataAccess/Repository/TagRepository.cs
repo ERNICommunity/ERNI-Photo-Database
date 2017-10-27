@@ -22,6 +22,13 @@ namespace ERNI.PhotoDatabase.DataAccess.Repository
             return query.ToListAsync(cancellationToken);
         }
 
+        public Task<List<Tag>> GetAllTags(CancellationToken cancellationToken)
+        {
+            var query = this.DbContext.Tags.OrderBy(_ => _.Text);
+
+            return query.ToListAsync(cancellationToken);
+        }
+
         public Task<string[]> GetTagsForImage(int photoId, CancellationToken cancellationToken)
         {
             return this.DbContext.PhotoTag.Include(pt => pt.Tag).Where(_ => _.PhotoId == photoId).Select(_ => _.Tag.Text)
@@ -46,11 +53,11 @@ namespace ERNI.PhotoDatabase.DataAccess.Repository
             var existingTags = new HashSet<string>(photo.PhotoTags.Select(_ => _.Tag.Text));
             var addedTags = tags.Except(existingTags);
 
-            var allTags = await this.DbContext.Tags.ToDictionaryAsync(_ => _.Text, cancellationToken);
+            var allTags = await this.DbContext.Tags.ToDictionaryAsync(_ => _.Text.ToLowerInvariant(), cancellationToken);
 
             foreach (var tag in addedTags)
             {
-                if (!allTags.TryGetValue(tag, out var existing))
+                if (!allTags.TryGetValue(tag.ToLowerInvariant(), out var existing))
                 {
                     existing = new Tag {Text = tag};
                     allTags.Add(tag, existing);
