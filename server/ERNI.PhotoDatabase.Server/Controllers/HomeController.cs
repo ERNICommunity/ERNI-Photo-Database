@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ERNI.PhotoDatabase.DataAccess.Repository;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace ERNI.PhotoDatabase.Server.Controllers
 {
@@ -20,6 +21,8 @@ namespace ERNI.PhotoDatabase.Server.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(CancellationToken cancellationToken)
         {
+            var claims = ((ClaimsIdentity)User.Identity).Claims;
+
             var data = await this.tagRepository.GetMostUsedTags(cancellationToken);
 
             return View(data.Select(_ => (_.Text, _.PhotoTags.Count)));
