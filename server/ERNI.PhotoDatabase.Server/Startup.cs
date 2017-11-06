@@ -27,7 +27,7 @@ namespace ERNI.PhotoDatabase.Server
         {
             services.Configure<ImageSizesSettings>(Configuration.GetSection("ImageSizes"));
 
-            services.AddDbContext<DatabaseContext>(options => options.UseSqlServer(Configuration.GetValue<string>("ConnectionString")));
+            services.AddDbContext<DatabaseContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Database")));
 
             services.AddMvc();
 
