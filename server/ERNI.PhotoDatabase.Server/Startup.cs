@@ -41,10 +41,10 @@ namespace ERNI.PhotoDatabase.Server
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
+            // if (env.IsDevelopment())
+            // {
                 app.UseDeveloperExceptionPage();
-            }
+            // }
 
             using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
             {
@@ -67,9 +67,8 @@ namespace ERNI.PhotoDatabase.Server
         private async Task ConfigureImageStore(IServiceProvider serviceProvider)
         {
             var imageStoreConfiguration = serviceProvider.GetRequiredService<DataAccess.Images.ImageStoreConfiguration>();
-            var imageStoreSection = Configuration.GetSection("imageStore");
-            imageStoreConfiguration.ConnectionString = imageStoreSection.GetValue("connectionString", imageStoreConfiguration.ConnectionString);
-            imageStoreConfiguration.ContainerName = imageStoreSection.GetValue("containerName", imageStoreConfiguration.ContainerName);
+            imageStoreConfiguration.ConnectionString = Configuration.GetConnectionString("BlobStorage");
+            imageStoreConfiguration.ContainerName = Configuration.GetValue<string>("BlobContainerName");
 
             using (var scope = serviceProvider.CreateScope())
             {
