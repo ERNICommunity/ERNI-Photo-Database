@@ -7,9 +7,11 @@ using ERNI.PhotoDatabase.DataAccess.Repository;
 using ERNI.PhotoDatabase.DataAccess.UnitOfWork;
 using ERNI.PhotoDatabase.Server.Model;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ERNI.PhotoDatabase.Server.Controllers
 {
+    [Authorize]
     public class TagController : Controller
     {
         private readonly ITagRepository tagRepository;

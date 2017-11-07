@@ -4,9 +4,13 @@ using System.Threading.Tasks;
 using ERNI.PhotoDatabase.DataAccess.Repository;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ERNI.PhotoDatabase.Server.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly IPhotoRepository photoRepository;
@@ -21,9 +25,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(CancellationToken cancellationToken)
         {
-            var claims = ((ClaimsIdentity)User.Identity).Claims;
-
-            var data = await this.tagRepository.GetMostUsedTags(cancellationToken);
+            var data = await tagRepository.GetMostUsedTags(cancellationToken);
 
             return View(data.Select(_ => (_.Text, _.PhotoTags.Count)));
         }
