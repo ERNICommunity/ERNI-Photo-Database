@@ -1,19 +1,6 @@
-﻿@model IEnumerable<(string Tag,int Count)>
+﻿
 @{
-    Layout = "_Layout";
-    ViewData["Title"] = "Tag Cloud";
+    ViewData["Title"] = "SignedOut";
 }
-
-<div class="tag-cloud"></div>
-    @foreach (var item in Model)
-    {
-        <a class="badge badge-primary" asp-controller="Home" asp-action="Search" asp-route-query="@item.Tag">
-            <i class="fa fa-tag" aria-hidden="true"></i>
-            @item.Tag (@item.Count)
-        </a>
-    }
-</div>
-
-
-
-
+<h2>You have to sign in first</h2>
+<a asp-controller="Account" asp-action="SignIn">Sign in</a>

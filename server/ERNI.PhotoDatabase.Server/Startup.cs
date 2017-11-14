@@ -31,11 +31,14 @@ namespace ERNI.PhotoDatabase.Server
                 auth =>
                 {
                     auth.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                    auth.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+                    auth.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                     auth.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 }
             )
-            .AddCookie()
+            .AddCookie(opt =>
+            {
+                opt.LoginPath = "/";                
+            })
             .AddOpenIdConnect(options =>
             {
                 options.ClientId = Configuration["Authentication:AzureAd:ClientId"];
