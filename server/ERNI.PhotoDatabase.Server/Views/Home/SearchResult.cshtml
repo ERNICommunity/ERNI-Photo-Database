@@ -8,7 +8,7 @@
 <div class="row search-result">
     @foreach (var sr in Model)
     {
-        <div class="col">
+        <div class="col-sm-4">
             <div class="card">
                 <a asp-controller="Detail" asp-action="Index" asp-route-id="@sr.Id">
                     <img class="card-img-top" src="@Url.Action("Thumbnail", "Photo", new { id = sr.Id })" alt="@sr.Name">
@@ -19,7 +19,7 @@
                     <p class="card-text tags">
                         @foreach (var tag in sr.Tags)
                         {
-                            <a asp-controller="Home" asp-action="Search" asp-route-query="@tag" class="badge badge-primary">
+                            <a asp-controller="Home" asp-action="SearchResult" asp-route-query="@tag" class="badge badge-primary">
                                 <i class="fa fa-tag" aria-hidden="true"></i> @tag
                             </a>
                         }

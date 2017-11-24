@@ -1,19 +1,31 @@
 ﻿@model IEnumerable<(string Tag,int Count)>
 @{
-    Layout = "_Layout";
-    ViewData["Title"] = "Tag Cloud";
+    ViewData["Title"] = "SignedOut";
+}
+@{
+    Layout = "_SearchLayout";
 }
 
-<div class="tag-cloud"></div>
-    @foreach (var item in Model)
-    {
-        <a class="badge badge-primary" asp-controller="Home" asp-action="Search" asp-route-query="@item.Tag">
-            <i class="fa fa-tag" aria-hidden="true"></i>
-            @item.Tag (@item.Count)
-        </a>
-    }
-</div>
 
+    <div class="row justify-content-center align-items-center h-100">
+        <div class="jumbotron col-sm-12 search-navigation">
+            <h1 class="display-3">Type to search...</h1>
+            <hr class="my-4">
+        <form asp-controller="Home" asp-action="SearchResult" method="get" asp-antiforgery="false" class="w-100">
+            <div>
+                @*justify-content-center align-items-center*@
 
-
-
+                <label for="inputPassword2" class="sr-only">Password</label>
+                <input id="search-field" type="text" placeholder="Search" aria-label="Search" name="query" class="form-control form-control-lg" onkeypress="$('#search-button').prop('disabled', $('#search-field').val() === '')" />
+                @*<button class="btn btn-info btn-lg btn-block col-sm-1 my-2 my-sm-0" type="submit" id="search-button" disabled="disabled">Search</button>*@
+            </div>
+        </form>
+            <hr class="my-4">
+            <p class="lead">
+                @foreach (var item in Model)
+                {
+                    <a asp-controller="Home" asp-action="SearchResult" asp-route-query="@item.Tag" class="link-tag">@item.Tag (@item.Count)</a>
+                }
+            </p>
+        </div>
+    </div>

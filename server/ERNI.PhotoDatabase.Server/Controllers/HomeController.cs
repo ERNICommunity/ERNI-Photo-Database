@@ -3,9 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ERNI.PhotoDatabase.DataAccess.Repository;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Authorization;
 
 namespace ERNI.PhotoDatabase.Server.Controllers
@@ -22,16 +20,14 @@ namespace ERNI.PhotoDatabase.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(CancellationToken cancellationToken)
+        public IActionResult Index(CancellationToken cancellationToken)
         {
             if (HttpContext.User.Identity.IsAuthenticated)
             {
                 return RedirectToAction(nameof(HomeController.Search), "Home");
             }
 
-            var data = await tagRepository.GetMostUsedTags(cancellationToken);
-
-            return View(data.Select(_ => (_.Text, _.PhotoTags.Count)));
+            return View();
         }
 
         [HttpGet]
@@ -47,7 +43,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
         [Authorize]
         public async Task<IActionResult> SearchResult(string query, CancellationToken cancellationToken)
         {
-            var images = await this.photoRepository.GetPhotosByTag(query, cancellationToken);
+            var images = await photoRepository.GetPhotosByTag(query, cancellationToken);
 
             return View(images.Select(_ => new SearchResult
             {

@@ -2,32 +2,31 @@
 @model ERNI.PhotoDatabase.Server.Model.UploadResult
 
 @{
-    ViewBag.Title = "Taging";
     Layout = "_Layout";
 
     var returnAction = Model.Images.Length == 1 ? nameof(TagController.SaveOne) : nameof(TagController.Save);
 }
 
-
-<form asp-controller="Tag" asp-action="@returnAction" method="post" asp-antiforgery="false">
-    <div class="row save-button-row">
-        <div class="col">
-            <input type="submit" class="btn btn-primary" value="Save" />
+<div class="container">
+    <form asp-controller="Tag" asp-action="@returnAction" method="post" asp-antiforgery="false">
+        <div class="row save-button-row">
+            <div class="col">
+                <input type="submit" class="btn btn-primary" value="Save" />
+            </div>
         </div>
-    </div>
 
-    @for (var i = 0; i < Model.Images.Length; ++i)
-    {
-        @Html.EditorFor(m => m.Images[i])
-    }
+        @for (var i = 0; i < Model.Images.Length; ++i)
+        {
+            @Html.EditorFor(m => m.Images[i])
+        }
 
-    <div class="row save-button-row">
-        <div class="col">
-            <input type="submit" class="btn btn-primary" value="Save" />
+        <div class="row save-button-row">
+            <div class="col">
+                <input type="submit" class="btn btn-primary" value="Save" />
+            </div>
         </div>
-    </div>
-</form>
-
+    </form>
+</div>
 
 @section Scripts
 {
