@@ -10,13 +10,19 @@
     margin-bottom: 10px;
 }
 
-.search-result .col {
+.search-result .item {
     margin-bottom: 10px;
 }
 
-.search-result .card {
-    width: 20rem;
-}
+    .search-result .item .overlay {
+        padding:0.5rem;
+        width: 100%;
+        position: absolute;
+        left: 0px;
+        bottom: 0px;
+        height: 25%;
+        background-color: rgba(0,0,0,0.6);
+    }
 
 .save-button-row {
     margin-top: 10px;
@@ -34,18 +40,17 @@
 }
 
 .content-background {
-    padding-top:5rem;
-    background-color: #ffffff;
-    opacity: 0.9;
+    padding-top: 1rem;
+    background-color: rgba(255,255,255,0.9);
 }
 
 .search-navigation {
-    background: rgba(0,0,0,0.2);
+    background: rgba(0,0,0,0.3);
     border-bottom: solid 1px;
     border-bottom-color: rgba(0,0,0,0.1);
 }
 
 .link-tag {
-    color:white;
-    font-weight:bold;
+    color: white;
+    font-weight: bold;
 }
