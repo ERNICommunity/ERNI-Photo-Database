@@ -45,13 +45,13 @@
                         </div>
                     </li>*@
             </ul>
-            <form class="form-inline my-2 my-lg-0">
-                <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+            <form asp-controller="Home" asp-action="SearchResult" method="get" asp-antiforgery="false" class="form-inline my-2 my-lg-0">
+                <input class="form-control mr-sm-2" type="text" id="search-field" type="text" placeholder="Search" name="query" aria-label="Search">
                 <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
             </form>
         </div>
     </nav>
-    <div class="minheight-100 container text-white content-background" style="margin-top:5rem;">
+    <div class="minheight-100 container content-background" style="margin-top:5rem;">
         @RenderBody()
     </div>
 
