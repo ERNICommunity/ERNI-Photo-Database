@@ -92,7 +92,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
             }
 
             var image = await this.ImageStore.GetImageBlobAsync(photo.ThumbnailImageId, cancellationToken);
-
+            
             return File(image.Content, "image/jpeg");
         }
         
@@ -127,10 +127,10 @@ namespace ERNI.PhotoDatabase.Server.Controllers
 
                     var fullSizeBlob = new ImageBlob {Content = data, Id = Guid.NewGuid()};
                     var thumbnailBlob = new ImageBlob {Content = thumbnailData, Id = Guid.NewGuid()};
-                    await this.ImageStore.SaveImageBlobAsync(fullSizeBlob, cancellationToken);
-                    await this.ImageStore.SaveImageBlobAsync(thumbnailBlob, cancellationToken);
+                    await ImageStore.SaveImageBlobAsync(fullSizeBlob, cancellationToken);
+                    await ImageStore.SaveImageBlobAsync(thumbnailBlob, cancellationToken);
 
-                    var photo = this.Repository.StorePhoto(formFile.FileName, fullSizeBlob.Id, thumbnailBlob.Id, formFile.ContentType, width, height);
+                    var photo = Repository.StorePhoto(formFile.FileName, fullSizeBlob.Id, thumbnailBlob.Id, formFile.ContentType, width, height);
 
                     photos.Add(photo);
                 }

@@ -17,26 +17,26 @@ namespace ERNI.PhotoDatabase.DataAccess.Repository
 
         public Task<List<Photo>> GetPhotosByTag(string tag, CancellationToken cancellationToken)
         {
-            var query = this.DbContext.Photos.Include(p => p.PhotoTags).ThenInclude(pt => pt.Tag)
-                .Where(_ => _.PhotoTags.Any(__ => __.Tag.Text == tag));
+            var query = DbContext.Photos.Include(p => p.PhotoTags).ThenInclude(pt => pt.Tag)
+                .Where(_ => _.PhotoTags.Any(__ => __.Tag.Text.Contains(tag)));
 
             return query.ToListAsync(cancellationToken);
         }
 
         public Task<List<Photo>> GetAllPhotos(CancellationToken cancellationToken)
         {
-            return this.DbContext.Photos.Include(p => p.PhotoTags).ThenInclude(pt => pt.Tag).ToListAsync(cancellationToken);
+            return DbContext.Photos.Include(p => p.PhotoTags).ThenInclude(pt => pt.Tag).ToListAsync(cancellationToken);
         }
 
         public Task<List<Photo>> GetPhotos(IEnumerable<int> ids, CancellationToken cancellationToken)
         {
-            return this.DbContext.Photos.Include(p => p.PhotoTags).ThenInclude(pt => pt.Tag)
+            return DbContext.Photos.Include(p => p.PhotoTags).ThenInclude(pt => pt.Tag)
                 .Where(p => ids.Contains(p.Id)).ToListAsync(cancellationToken);
         }
 
         public Task<Photo> GetPhoto(int id, CancellationToken cancellationToken)
         {
-            return this.DbContext.Photos.Include(p => p.PhotoTags).ThenInclude(pt => pt.Tag)
+            return DbContext.Photos.Include(p => p.PhotoTags).ThenInclude(pt => pt.Tag)
                 .SingleOrDefaultAsync(_ => _.Id == id, cancellationToken);
         }
 
@@ -49,10 +49,10 @@ namespace ERNI.PhotoDatabase.DataAccess.Repository
                 ThumbnailImageId = thumbnailBlobId,
                 Mime = mime,
                 Width = width,
-                Height = height
+                Height = height,
             };
 
-            this.DbContext.Photos.Add(photo);
+            DbContext.Photos.Add(photo);
 
             return photo;
         }
