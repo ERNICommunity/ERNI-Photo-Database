@@ -17,7 +17,7 @@
                 <p class="card-text tags">
                     @foreach (var tag in Model.Tags)
                     {
-                        <a asp-controller="Home" asp-action="Search" asp-route-query="@tag" class="badge badge-primary">
+                        <a asp-controller="Home" asp-action="SearchResult" asp-route-query="@tag" class="badge badge-primary">
                             <i class="fa fa-tag" aria-hidden="true"></i> @tag
                         </a>
                     }

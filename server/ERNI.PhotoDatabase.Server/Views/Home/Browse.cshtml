@@ -1,0 +1,31 @@
+﻿@model ERNI.PhotoDatabase.Server.Controllers.PhotoModel[]
+@{
+    ViewData["Title"] = "Browse";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row search-result">
+    @foreach (var sr in Model)
+    {
+        <div class="col-sm-3 item text-white">
+
+            <div class="card">
+                <div style="position:relative;">
+                    <div style="width:100%;padding-bottom:100%"></div>
+
+                    <a style="height:100%;width:100%;position:absolute;left:0px; top:0px;" asp-controller="Detail" asp-action="Index" asp-route-id="@sr.Id">
+                        <img style="height:100%;width:100%;object-fit:cover" src="@Url.Action("Thumbnail", "Photo", new { id = sr.Id })" alt="@sr.Name">
+                    </a>
+
+                    <div class="overlay">
+                        <h7>@sr.Name</h7>
+
+                        <a asp-controller="Tag" asp-action="Index" asp-route-fileIds="@sr.Id" class="float-right">
+                            <img src="~/img/icons/ic_mode_edit_white_24dp_1x.png" />
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
