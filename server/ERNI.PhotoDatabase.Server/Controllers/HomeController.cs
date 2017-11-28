@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ERNI.PhotoDatabase.DataAccess.Repository;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ERNI.PhotoDatabase.Server.Controllers
 {
@@ -43,6 +44,23 @@ namespace ERNI.PhotoDatabase.Server.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> Browse(CancellationToken cancellationToken)
+        {
+            var photos = await photoRepository.GetAllPhotos(cancellationToken);
+            return View(photos.Select(_ => new PhotoModel
+            {
+                Id = _.Id.ToString(),
+                Name = _.Name,
+                Tags = _.PhotoTags.Select(__ => __.Tag.Text).ToArray(),
+                Width = _.Width,
+                Height = _.Height,
+                ThumbnailUrl = Url.Action("Thumbnail", "Photo", new { id = _.Id }),
+                DetailUrl = Url.Action("Index", "Detail", new { id = _.Id })
+            }).ToArray());
+        }
+
+        [HttpGet]
+        [Authorize]
         public IActionResult Upload()
         {
             return View();
