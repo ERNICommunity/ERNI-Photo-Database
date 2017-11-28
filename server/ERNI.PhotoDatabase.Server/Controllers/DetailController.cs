@@ -3,9 +3,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using ERNI.PhotoDatabase.DataAccess.Repository;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ERNI.PhotoDatabase.Server.Controllers
 {
+    [Authorize]
     public class DetailController : Controller
     {
         private readonly IPhotoRepository _repository;

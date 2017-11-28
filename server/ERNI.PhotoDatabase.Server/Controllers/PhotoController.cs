@@ -12,11 +12,13 @@ using ERNI.PhotoDatabase.Server.Configuration;
 using ERNI.PhotoDatabase.Server.Utils.Image;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ERNI.PhotoDatabase.Server.Controllers
 {
 
     [Route("api/[controller]")]
+    [Authorize]
     public class PhotoController : Controller
     {
         private readonly Lazy<IPhotoRepository> repository;

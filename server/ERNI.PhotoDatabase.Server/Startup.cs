@@ -10,6 +10,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using ERNI.PhotoDatabase.DataAccess;
 using ERNI.PhotoDatabase.Server.Configuration;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 
 namespace ERNI.PhotoDatabase.Server
 {
@@ -25,6 +27,25 @@ namespace ERNI.PhotoDatabase.Server
         // This method gets called by the runtime. Use this method to add services to the container.
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
+            services.AddAuthentication(
+                auth =>
+                {
+                    auth.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    auth.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    auth.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                }
+            )
+            .AddCookie(opt =>
+            {
+                opt.LoginPath = "/";                
+            })
+            .AddOpenIdConnect(options =>
+            {
+                options.ClientId = Configuration["Authentication:AzureAd:ClientId"];
+                options.Authority = Configuration["Authentication:AzureAd:AADInstance"] + Configuration["Authentication:AzureAd:TenantId"];
+                options.CallbackPath = Configuration["Authentication:AzureAd:CallbackPath"];
+            });
+
             services.Configure<ImageSizesSettings>(Configuration.GetSection("ImageSizes"));
 
             services.AddDbContext<DatabaseContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Database")));
@@ -53,7 +74,9 @@ namespace ERNI.PhotoDatabase.Server
                 context.Database.EnsureCreated();
             }
 
-            this.ConfigureImageStore(app.ApplicationServices).Wait();
+            ConfigureImageStore(app.ApplicationServices).Wait();
+
+            app.UseAuthentication();
 
             app.UseStaticFiles();
 
