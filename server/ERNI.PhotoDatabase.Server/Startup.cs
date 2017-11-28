@@ -49,10 +49,6 @@ namespace ERNI.PhotoDatabase.Server
             using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
             {
                 var context = serviceScope.ServiceProvider.GetRequiredService<DatabaseContext>();
-                if (env.IsDevelopment())
-                {
-                    context.Database.EnsureDeleted();
-                }
 
                 context.Database.EnsureCreated();
             }
