@@ -56,5 +56,10 @@ namespace ERNI.PhotoDatabase.DataAccess.Repository
 
             return photo;
         }
+
+        public void DeletePhoto(Photo photo)
+        {
+            DbContext.Photos.Remove(photo);
+        }
     }
 }

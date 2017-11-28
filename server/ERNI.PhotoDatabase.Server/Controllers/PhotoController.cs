@@ -140,5 +140,31 @@ namespace ERNI.PhotoDatabase.Server.Controllers
 
             return RedirectToAction("Index", "Tag", new {fileIds = photos.Select(_ => _.Id).ToList()});
         }
+
+        // DELETE api/values
+        /// <summary>
+        /// Deletes the specified photo.
+        /// </summary>
+        /// <returns></returns>
+        [HttpDelete("{id}")]
+        [Produces("application/json")]
+        public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
+        {
+            var photo = await Repository.GetPhoto(id, cancellationToken);
+
+            if (photo == null)
+            {
+                return NotFound();
+            }
+
+            await ImageStore.DeleteImageBlobAsync(photo.FullSizeImageId, cancellationToken);
+            await ImageStore.DeleteImageBlobAsync(photo.ThumbnailImageId, cancellationToken);
+
+            Repository.DeletePhoto(photo);
+
+            await UnitOfWork.SaveChanges(cancellationToken);
+
+            return Ok();
+        }
     }
 }
