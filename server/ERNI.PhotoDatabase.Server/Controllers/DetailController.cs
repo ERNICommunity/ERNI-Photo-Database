@@ -24,13 +24,15 @@ namespace ERNI.PhotoDatabase.Server.Controllers
                 return NotFound();
             }
 
-            return View(new SearchResult
+            return View(new PhotoModel
             {
                 Id = photo.Id.ToString(),
                 Name = photo.Name,
                 Tags = photo.PhotoTags.Select(_ => _.Tag.Text).ToArray(),
                 Width = photo.Width,
-                Height = photo.Height
+                Height = photo.Height,
+                ThumbnailUrl = Url.Action("Thumbnail", "Photo", new { id = photo.Id }),
+                DetailUrl = Url.Action("Index", "Detail", new { id = photo.Id })
             });
         }
     }
