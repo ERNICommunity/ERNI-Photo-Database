@@ -20,7 +20,7 @@
                     <div class="overlay">
                         <h7>@sr.Name</h7>
 
-                        <a href="#" class="delete" data-photo-id="@sr.Id" data-toggle="modal" data-target="#exampleModal">
+                        <a href="#" class="delete float-right" data-photo-id="@sr.Id" data-toggle="modal" data-target="#exampleModal">
                             <img src="~/img/icons/ic_delete_white_24dp_1x.png" />
                         </a>
 
@@ -34,50 +34,10 @@
     }
 </div>
 
-
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Deleting photo</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                Do you really want do delete the seleted photo?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" id="modal-button-remove" class="btn btn-primary">Save changes</button>
-            </div>
-        </div>
-    </div>
-</div>
-
+@Html.Partial("/Views/Shared/Partial/ConfirmDeletePhoto.cshtml")
 
 @section Scripts
     {
-    <script type="text/javascript">
-        $('#exampleModal').on('show.bs.modal', function (event) {
-            var button = $(event.relatedTarget) // Button that triggered the modal
-            var photoId = button.data('photo-id') // Extract info from data-* attributes
 
-            var modal = $(this);
-            modal.data("photo-id", photoId);
-        })
-
-        $('#modal-button-remove').bind('click', function (e) {
-            var photoId = $("#exampleModal").data("photo-id");
-
-            $.ajax({
-                url: '/api/photo/' + photoId,
-                dataType: "json",
-                type: 'DELETE',
-                success: function (result) {
-                    location.reload(); 
-                }
-            });            
-        });
-    </script>
+    <script src="/js/deletePhoto.js"></script>
 }
