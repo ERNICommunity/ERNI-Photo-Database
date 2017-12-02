@@ -21,6 +21,10 @@
                     <div class="overlay">
                         <h7>@sr.Name</h7>
 
+                        <a href="#" class="delete float-right" data-photo-id="@sr.Id" data-toggle="modal" data-target="#exampleModal">
+                            <img src="~/img/icons/ic_delete_white_24dp_1x.png" />
+                        </a>
+
                         <a asp-controller="Tag" asp-action="Index" asp-route-fileIds="@sr.Id" class="float-right">
                             <img src="~/img/icons/ic_mode_edit_white_24dp_1x.png" />
                             @*<i class="fa fa-tag" aria-hidden="true"></i> Edit tags*@
@@ -31,3 +35,11 @@
         </div>
     }
 </div>
+
+@Html.Partial("/Views/Shared/Partial/ConfirmDeletePhoto.cshtml")
+
+@section Scripts
+    {
+
+    <script src="/js/deletePhoto.js"></script>
+}

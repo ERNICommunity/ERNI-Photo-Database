@@ -164,7 +164,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
 
             await UnitOfWork.SaveChanges(cancellationToken);
 
-            return Ok();
+            return Ok("Photo deleted");
         }
     }
 }
