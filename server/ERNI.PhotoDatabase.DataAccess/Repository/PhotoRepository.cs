@@ -49,7 +49,7 @@ namespace ERNI.PhotoDatabase.DataAccess.Repository
                 ThumbnailImageId = thumbnailBlobId,
                 Mime = mime,
                 Width = width,
-                Height = height,
+                Height = height
             };
 
             DbContext.Photos.Add(photo);
