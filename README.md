@@ -4,19 +4,27 @@
 # Development
 After cloning the solution, you need to configure the SQL server connection string to use for development and enable the Azure Storage Emulator.
 
-## SQL Server connection string
-The application takes its connection string from a [user secret](https://docs.microsoft.com/en-us/aspnet/core/security/app-secrets?tabs=visual-studio). For development, you need to add you own user secret for the application pick it up.
+## Storing user secrets (SQL Server and BLOB storage connection strings, azure AD configuration)
+The application is able to take its necessary configuration values from [user secrets](https://docs.microsoft.com/en-us/aspnet/core/security/app-secrets?tabs=visual-studio). 
+For development, you need to add your own user secret for the application pick it up.
 
-The setting name is `ConnectionString`.
-
-### Setting the connection string from Visual Studio:
+### Setting the user secrets from Visual Studio:
 1. Open Solution explorer and right-click the ERNI.PhotoDatabase.Server project
 2. In the context menu, select Manage user secrets
 3. Put the following as the content of the file that opens:
 ```
 {
   "ConnectionStrings": {
-    "Database": "your-sql-server-connection-string"
+    "Database": "your-sql-server-connection-string",
+	"BlobStorage": "your-blob-storage-connection-string"
+  },
+  "Authentication": {
+    "AzureAd": {
+      "AADInstance": "your-aad-instance",
+      "ClientId": "your-client-id",
+      "Domain": "your-domain",
+      "TenantId": "your-tenant-id"
+    }
   }
 }
 ```
@@ -24,7 +32,7 @@ The setting name is `ConnectionString`.
 ### Setting the connection string from VS code (or other editor)
 1. Open a command prompt and change your wowking directory to the folder `server\ERNI.PhotoDatabase.Server`
 2. Run `dotnet restore` (this will install the user secrets CLI tool)
-3. Run `dotnet user-secrets set ConnectionString your-sql-server-connection-string`
+3. Run `dotnet user-secrets set ConnectionStrings.Database your-sql-server-connection-string`
 
 ## Azure Storage Emulator
 The application uses Azure blob storage to store images. For development, we use Azure Storage Emulator to develop locally.
