@@ -5,6 +5,14 @@
     <UserSecretsId>bca913a5-4120-470f-bb70-629215b204ba</UserSecretsId>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Remove="Views\Image\**" />
     <Compile Remove="wwwroot\NewFolder\**" />
@@ -65,7 +73,6 @@
 
   <ItemGroup>
     <Folder Include="Services\" />
-    <Folder Include="wwwroot\js\" />
   </ItemGroup>
 
 </Project>

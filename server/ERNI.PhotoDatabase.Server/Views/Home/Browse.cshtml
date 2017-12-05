@@ -1,8 +1,7 @@
-﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
-@model ERNI.PhotoDatabase.Server.Controllers.PhotoModel[]
+﻿@model ERNI.PhotoDatabase.Server.Controllers.PhotoModel[]
 @{
-    Layout = "_Layout";
-    ViewData["Title"] = "Search Results";
+    ViewData["Title"] = "Browse";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div class="row search-result">
@@ -27,7 +26,6 @@
 
                         <a asp-controller="Tag" asp-action="Index" asp-route-fileIds="@sr.Id" class="float-right">
                             <img src="~/img/icons/ic_mode_edit_white_24dp_1x.png" />
-                            @*<i class="fa fa-tag" aria-hidden="true"></i> Edit tags*@
                         </a>
                     </div>
                 </div>

@@ -72,9 +72,14 @@ namespace ERNI.PhotoDatabase.Server.Controllers
                 foreach (var image in taggedResults.Images)
                 {
                     var tags = image.Tags?.Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
-                    await this.tagRepository.SetTagsForImage(image.Id, tags, cancellationToken);
 
-                    await this.unitOfWork.SaveChanges(cancellationToken);
+                    var photo = await photoRepository.GetPhoto(image.Id, cancellationToken);
+
+                    photo.Name = image.Name;
+
+                    await tagRepository.SetTagsForImage(image.Id, tags, cancellationToken);
+
+                    await unitOfWork.SaveChanges(cancellationToken);
                 }
 
                 t.Commit();

@@ -1,6 +1,21 @@
-﻿
-@{
+﻿@{
+    Layout = "_IndexLayout";
     ViewData["Title"] = "SignedOut";
 }
-<h2>You have to sign in first</h2>
-<a asp-controller="Account" asp-action="SignIn">Sign in</a>
+
+
+<div class="container h-100 text-white" id="header">
+    <div class="row justify-content-center align-items-center h-100">
+
+        <div class="jumbotron col-sm-12 search-navigation">
+
+
+            <h1 class="display-3">You have to sign in first</h1>
+            <hr class="my-4">
+            <p class="lead">
+                <a asp-controller="Account" asp-action="SignIn">Sign in</a>
+            </p>
+        </div>
+    </div>
+
+</div>

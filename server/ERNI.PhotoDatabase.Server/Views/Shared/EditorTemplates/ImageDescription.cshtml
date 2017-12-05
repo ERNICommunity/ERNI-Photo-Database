@@ -6,7 +6,7 @@
         <div class="card">
             <img class="card-img-top" src="@Url.Action("Thumbnail", "Photo", new {id = Model.Id})" alt="@Model.Name">
             <div class="card-body">
-                <h4 class="card-title">@Model.Name</h4>
+                <input type="text" class="form-control" placeholder="Title" asp-for="Name" value="@Model.Name" />
             </div>
         </div>
     </div>

@@ -1,6 +1,6 @@
 ﻿@using ERNI.PhotoDatabase.Server.Configuration
 @using Microsoft.Extensions.Options
-@model ERNI.PhotoDatabase.Server.Controllers.SearchResult
+@model ERNI.PhotoDatabase.Server.Controllers.PhotoModel
 @{
     ViewData["Title"] = $"Photo - {Model.Name}";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -10,14 +10,14 @@
 <div class="row">
     <div class="col">
         <div class="card">
-            <img class="card-img-top" src="@Url.Action("Thumbnail", "Photo", new { id = Model.Id })" alt="@Model.Name">
+            <img class="card-img-top" src="@Model.ThumbnailUrl" alt="@Model.Name">
                 
             <div class="card-body">
                 <h4 class="card-title">@Model.Name</h4>
                 <p class="card-text tags">
                     @foreach (var tag in Model.Tags)
                     {
-                        <a asp-controller="Home" asp-action="Search" asp-route-query="@tag" class="badge badge-primary">
+                        <a asp-controller="Home" asp-action="SearchResult" asp-route-query="@tag" class="badge badge-primary">
                             <i class="fa fa-tag" aria-hidden="true"></i> @tag
                         </a>
                     }
