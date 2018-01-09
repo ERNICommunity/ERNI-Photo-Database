@@ -71,7 +71,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
             {
                 foreach (var image in taggedResults.Images)
                 {
-                    var tags = image.Tags?.Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
+                    var tags = image.Tags?.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)?.Select(x => x.Trim())?.ToArray();
 
                     var photo = await photoRepository.GetPhoto(image.Id, cancellationToken);
 
