@@ -72,6 +72,8 @@ namespace ERNI.PhotoDatabase.Server
                 var context = serviceScope.ServiceProvider.GetRequiredService<DatabaseContext>();
 
                 context.Database.EnsureCreated();
+
+                context.Database.Migrate();
             }
 
             ConfigureImageStore(app.ApplicationServices).Wait();
