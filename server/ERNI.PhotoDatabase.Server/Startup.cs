@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using ERNI.PhotoDatabase.DataAccess;
 using ERNI.PhotoDatabase.Server.Configuration;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace ERNI.PhotoDatabase.Server
 {
@@ -27,6 +27,8 @@ namespace ERNI.PhotoDatabase.Server
         // This method gets called by the runtime. Use this method to add services to the container.
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
             services.AddAuthentication(
                 auth =>
                 {
