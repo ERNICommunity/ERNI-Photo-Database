@@ -12,6 +12,9 @@ using ERNI.PhotoDatabase.DataAccess;
 using ERNI.PhotoDatabase.Server.Configuration;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using ERNI.PhotoDatabase.DataAccess.DomainModel;
+using System.Collections.Generic;
 
 namespace ERNI.PhotoDatabase.Server
 {
@@ -46,6 +49,40 @@ namespace ERNI.PhotoDatabase.Server
                 options.ClientId = Configuration["Authentication:AzureAd:ClientId"];
                 options.Authority = Configuration["Authentication:AzureAd:AADInstance"] + Configuration["Authentication:AzureAd:TenantId"];
                 options.CallbackPath = Configuration["Authentication:AzureAd:CallbackPath"];
+                options.Events.OnTokenValidated = async context =>
+                {
+
+                    var db = context.HttpContext.RequestServices.GetRequiredService<DatabaseContext>();
+
+                    var sub = context.Principal.Claims.Single(c => c.Type == "sub").Value;
+
+                    var user = await db.Users.SingleOrDefaultAsync(_ => _.UniqueIdentifier == sub);
+
+                    if (user == null)
+                    {
+
+                        user = new User
+                        {
+                            UniqueIdentifier = sub
+                        };
+                        db.Users.Add(user);
+                        db.SaveChanges();
+                    }
+
+                    var claims = new List<System.Security.Claims.Claim>();
+
+                    if (user.CanUpload)
+                    {
+                        claims.Add(new System.Security.Claims.Claim("group", "uploader"));
+                    }
+
+                    if (user.IsAdmin)
+                    {
+                        claims.Add(new System.Security.Claims.Claim("group", "admin"));
+                    }
+
+                    context.Principal.AddIdentity(new System.Security.Claims.ClaimsIdentity(claims));
+                };
             });
 
             services.Configure<ImageSizesSettings>(Configuration.GetSection("ImageSizes"));
