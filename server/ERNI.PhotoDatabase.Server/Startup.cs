@@ -73,15 +73,15 @@ namespace ERNI.PhotoDatabase.Server
 
                     if (user.CanUpload)
                     {
-                        claims.Add(new System.Security.Claims.Claim("group", "uploader"));
+                        claims.Add(new System.Security.Claims.Claim("role", "uploader"));
                     }
 
                     if (user.IsAdmin)
                     {
-                        claims.Add(new System.Security.Claims.Claim("group", "admin"));
+                        claims.Add(new System.Security.Claims.Claim("role", "admin"));
                     }
 
-                    context.Principal.AddIdentity(new System.Security.Claims.ClaimsIdentity(claims));
+                    context.Principal.AddIdentity(new System.Security.Claims.ClaimsIdentity(claims, null, null, "role"));
                 };
             });
 
