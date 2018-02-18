@@ -74,7 +74,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "uploader")]
         public IActionResult Upload()
         {
             return View();

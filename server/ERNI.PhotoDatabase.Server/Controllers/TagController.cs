@@ -45,6 +45,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "uploader")]
         public async Task<IActionResult> Save([FromForm]UploadResult taggedResults, CancellationToken cancellationToken)
         {
             await SaveTags(taggedResults, cancellationToken);
@@ -53,6 +54,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "uploader")]
         public async Task<IActionResult> SaveOne([FromForm]UploadResult taggedResults, CancellationToken cancellationToken)
         {
             if (taggedResults.Images.Length != 1)
