@@ -5,27 +5,31 @@
     ViewData["Title"] = "Search Results";
 }
 
-<div id="photos">
+<div class="grid" id="photos">
+    <div class="grid-sizer"></div>
     @foreach (var sr in Model)
     {
-        <div class="item text-white">
-            <a asp-controller="Detail" asp-action="Index" asp-route-id="@sr.Id">
-                <img src="@Url.Action("Thumbnail", "Photo", new { id = sr.Id })" alt="@sr.Name">
-            </a>
-
-            <div class="overlay">
-                <h7>@sr.Name</h7>
-
-                <a href="#" class="delete float-right" data-photo-id="@sr.Id" data-toggle="modal" data-target="#exampleModal">
-                    <img src="~/img/icons/ic_delete_white_24dp_1x.png" />
+        <div class="grid-item-outer">
+            <div class="grid-item item text-white">
+                <a asp-controller="Detail" asp-action="Index" asp-route-id="@sr.Id">
+                    <img src="@Url.Action("Thumbnail", "Photo", new { id = sr.Id })" alt="@sr.Name">
                 </a>
 
-                <a asp-controller="Tag" asp-action="Index" asp-route-fileIds="@sr.Id" class="float-right">
-                    <img src="~/img/icons/ic_mode_edit_white_24dp_1x.png" />
-                </a>
+                <div class="overlay">
+                    <h7>@sr.Name</h7>
+
+                    <a href="#" class="delete float-right" data-photo-id="@sr.Id" data-toggle="modal" data-target="#exampleModal">
+                        <img src="~/img/icons/ic_delete_white_24dp_1x.png" />
+                    </a>
+
+                    <a asp-controller="Tag" asp-action="Index" asp-route-fileIds="@sr.Id" class="float-right">
+                        <img src="~/img/icons/ic_mode_edit_white_24dp_1x.png" />
+                    </a>
+                </div>
             </div>
         </div>
     }
+
 </div>
 
 @Html.Partial("/Views/Shared/Partial/ConfirmDeletePhoto.cshtml")
@@ -34,4 +38,20 @@
     {
 
     <script src="/js/deletePhoto.js"></script>
+
+    <script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
+    <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
+    <script type="text/javascript">
+        var grid = $('.grid').masonry({
+            itemSelector: '.grid-item-outer',
+            columnWidth: '.grid-sizer'
+        });
+
+        // layout Masonry after each image loads
+        grid.imagesLoaded().progress(function () {
+            grid.masonry('layout');
+        });
+
+    </script>
+
 }
