@@ -36,7 +36,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
         {
             var data = tagRepository.GetMostUsedTags(cancellationToken);
 
-            return View(data.Select(_ => (_.Text, _.PhotoTags.Count)).OrderByDescending(_ => _.Count).Take(10));
+            return View(data.Select(_ => (_.Text, Count: _.PhotoTags.Count)).OrderByDescending(_ => _.Count).Take(10));
         }
 
         [HttpGet]
