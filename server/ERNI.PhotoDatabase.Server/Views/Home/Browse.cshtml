@@ -1,4 +1,6 @@
-﻿@model ERNI.PhotoDatabase.Server.Controllers.PhotoModel[]
+﻿@using ERNI.PhotoDatabase.Server.Utils
+
+@model ERNI.PhotoDatabase.Server.Controllers.PhotoModel[]
 @{
     ViewData["Title"] = "Browse";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -8,13 +10,16 @@
     @foreach (var sr in Model)
     {
         <div class="item text-white">
-                <a asp-controller="Detail" asp-action="Index" asp-route-id="@sr.Id">
-                    <img src="@Url.Action("Thumbnail", "Photo", new { id = sr.Id })" alt="@sr.Name">
-                </a>
+            <a asp-controller="Detail" asp-action="Index" asp-route-id="@sr.Id">
+                <img src="@Url.Action("Thumbnail", "Photo", new { id = sr.Id })" alt="@sr.Name">
+            </a>
 
-                <div class="overlay">
-                    <h7>@sr.Name</h7>
+            <div class="overlay">
+                <h7>@sr.Name</h7>
 
+
+                @if (User.CanWrite())
+                {
                     <a href="#" class="delete float-right" data-photo-id="@sr.Id" data-toggle="modal" data-target="#exampleModal">
                         <img src="~/img/icons/ic_delete_white_24dp_1x.png" />
                     </a>
@@ -22,7 +27,8 @@
                     <a asp-controller="Tag" asp-action="Index" asp-route-fileIds="@sr.Id" class="float-right">
                         <img src="~/img/icons/ic_mode_edit_white_24dp_1x.png" />
                     </a>
-                </div>
+                }
+            </div>
         </div>
     }
 

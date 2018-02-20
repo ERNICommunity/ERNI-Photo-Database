@@ -72,6 +72,7 @@
     padding: 0.5rem;
     width: 100%;
     position: absolute;
+    min-height:35px;
     left: 0px;
     bottom: 0px;
     background-color: rgba(0,0,0,0.6);
