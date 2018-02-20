@@ -43,7 +43,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
         [Authorize]
         public async Task<IActionResult> SearchResult(string query, CancellationToken cancellationToken)
         {
-            var images = await photoRepository.GetPhotosByTag(query.Split(" "), cancellationToken);
+            var images = await photoRepository.SearchPhotos(query.ToLowerInvariant().Split(" "), cancellationToken);
 
             return View(images.Select(_ => new PhotoModel
             {

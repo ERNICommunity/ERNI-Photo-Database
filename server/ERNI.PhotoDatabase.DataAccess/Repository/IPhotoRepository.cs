@@ -10,6 +10,8 @@ namespace ERNI.PhotoDatabase.DataAccess.Repository
     {
         Task<Photo[]> GetPhotosByTag(string[] tags, CancellationToken cancellationToken);
 
+        Task<Photo[]> SearchPhotos(string[] expressions, CancellationToken cancellationToken);
+
         Task<List<Photo>> GetAllPhotos(CancellationToken cancellationToken);
 
         Task<List<Photo>> GetPhotos(IEnumerable<int> ids, CancellationToken cancellationToken);
