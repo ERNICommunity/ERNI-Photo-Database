@@ -1,5 +1,7 @@
 ﻿@using ERNI.PhotoDatabase.Server.Configuration
 @using Microsoft.Extensions.Options
+@using ERNI.PhotoDatabase.Server.Utils
+
 @model ERNI.PhotoDatabase.Server.Controllers.PhotoModel
 @{
     ViewData["Title"] = $"Photo - {Model.Name}";
@@ -11,7 +13,7 @@
     <div class="col">
         <div class="card">
             <img class="card-img-top" src="@Model.ThumbnailUrl" alt="@Model.Name">
-                
+
             <div class="card-body">
                 <h4 class="card-title">@Model.Name</h4>
                 <p class="card-text tags">
@@ -22,19 +24,23 @@
                         </a>
                     }
                 </p>
-                <a asp-controller="Tag" asp-action="Index" asp-route-fileIds="@Model.Id">
-                    <i class="fa fa-tag" aria-hidden="true"></i> Edit tags
-                </a>
+
+                @if (User.CanWrite())
+                {
+                    <a asp-controller="Tag" asp-action="Index" asp-route-fileIds="@Model.Id">
+                        <i class="fa fa-tag" aria-hidden="true"></i> Edit tags
+                    </a>
+                }
             </div>
         </div>
-    </div>  
+    </div>
     <div class="col">
         <div>Downloads</div>
         <ul>
             <li>
                 <a asp-controller="Photo" asp-action="Download" asp-route-id="@Model.Id">Full size (@Model.Width x @Model.Height)</a>
             </li>
-            
+
             @foreach (var size in ImageSettings.Value.Download)
             {
                 <li>

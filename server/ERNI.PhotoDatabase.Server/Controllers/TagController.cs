@@ -33,6 +33,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "uploader")]
         public async Task<IActionResult> Index(int[] fileIds, CancellationToken cancellationToken)
         {
             var uploadedFiles = await this.photoRepository.GetPhotos(fileIds, cancellationToken);
@@ -45,6 +46,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "uploader")]
         public async Task<IActionResult> Save([FromForm]UploadResult taggedResults, CancellationToken cancellationToken)
         {
             await SaveTags(taggedResults, cancellationToken);
@@ -53,6 +55,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "uploader")]
         public async Task<IActionResult> SaveOne([FromForm]UploadResult taggedResults, CancellationToken cancellationToken)
         {
             if (taggedResults.Images.Length != 1)
@@ -65,6 +68,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
             return this.RedirectToAction("Index", "Detail", new { id = taggedResults.Images.Single().Id });
         }
 
+        [Authorize(Roles = "uploader")]
         private async Task SaveTags(UploadResult taggedResults, CancellationToken cancellationToken)
         {
             using (var t = await this.unitOfWork.BeginTransaction(cancellationToken))

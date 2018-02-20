@@ -111,6 +111,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
         /// <param name="files">The files.</param>
         /// <returns></returns>
         [HttpPost]
+        [Authorize(Roles = "uploader")]
         public async Task<IActionResult> Upload(List<IFormFile> files, CancellationToken cancellationToken)
         {
             var photos = new List<Photo>();
@@ -148,6 +149,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
         /// <returns></returns>
         [HttpDelete("{id}")]
         [Produces("application/json")]
+        [Authorize(Roles = "uploader")]
         public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
         {
             var photo = await Repository.GetPhoto(id, cancellationToken);

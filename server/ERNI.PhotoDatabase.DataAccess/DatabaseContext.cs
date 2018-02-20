@@ -10,6 +10,8 @@ namespace ERNI.PhotoDatabase.DataAccess
         {
         }
 
+        public DbSet<User> Users { get; set; }
+
         public DbSet<Photo> Photos { get; set; }
 
         public DbSet<Tag> Tags { get; set; }
@@ -21,6 +23,7 @@ namespace ERNI.PhotoDatabase.DataAccess
             modelBuilder.ApplyConfiguration(new PhotoConfiguration());
             modelBuilder.ApplyConfiguration(new TagConfiguration());
             modelBuilder.ApplyConfiguration(new PhotoTagConfiguration());
+            modelBuilder.ApplyConfiguration(new UserConfiguration());
         }
     }
 }

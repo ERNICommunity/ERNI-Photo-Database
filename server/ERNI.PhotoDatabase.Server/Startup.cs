@@ -11,7 +11,10 @@ using Microsoft.EntityFrameworkCore;
 using ERNI.PhotoDatabase.DataAccess;
 using ERNI.PhotoDatabase.Server.Configuration;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using ERNI.PhotoDatabase.DataAccess.DomainModel;
+using System.Collections.Generic;
 
 namespace ERNI.PhotoDatabase.Server
 {
@@ -27,6 +30,8 @@ namespace ERNI.PhotoDatabase.Server
         // This method gets called by the runtime. Use this method to add services to the container.
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
             services.AddAuthentication(
                 auth =>
                 {
@@ -44,6 +49,43 @@ namespace ERNI.PhotoDatabase.Server
                 options.ClientId = Configuration["Authentication:AzureAd:ClientId"];
                 options.Authority = Configuration["Authentication:AzureAd:AADInstance"] + Configuration["Authentication:AzureAd:TenantId"];
                 options.CallbackPath = Configuration["Authentication:AzureAd:CallbackPath"];
+                options.Events.OnTokenValidated = async context =>
+                {
+
+                    var db = context.HttpContext.RequestServices.GetRequiredService<DatabaseContext>();
+
+                    var sub = context.Principal.Claims.Single(c => c.Type == "sub").Value;
+
+                    var user = await db.Users.SingleOrDefaultAsync(_ => _.UniqueIdentifier == sub);
+
+                    if (user == null)
+                    {
+
+                        user = new User
+                        {
+                            UniqueIdentifier = sub,
+                            FirstName = context.Principal.Claims.Single(c => c.Type == "given_name").Value,
+                            LastName = context.Principal.Claims.Single(c => c.Type == "family_name").Value,
+                            Username = context.Principal.Claims.Single(c => c.Type == "upn").Value
+                        };
+                        db.Users.Add(user);
+                        db.SaveChanges();
+                    }
+
+                    var claims = new List<System.Security.Claims.Claim>();
+
+                    if (user.CanUpload)
+                    {
+                        claims.Add(new System.Security.Claims.Claim("role", "uploader"));
+                    }
+
+                    if (user.IsAdmin)
+                    {
+                        claims.Add(new System.Security.Claims.Claim("role", "admin"));
+                    }
+
+                    context.Principal.AddIdentity(new System.Security.Claims.ClaimsIdentity(claims, null, null, "role"));
+                };
             });
 
             services.Configure<ImageSizesSettings>(Configuration.GetSection("ImageSizes"));
@@ -65,13 +107,6 @@ namespace ERNI.PhotoDatabase.Server
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-            }
-
-            using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
-            {
-                var context = serviceScope.ServiceProvider.GetRequiredService<DatabaseContext>();
-
-                context.Database.EnsureCreated();
             }
 
             ConfigureImageStore(app.ApplicationServices).Wait();
