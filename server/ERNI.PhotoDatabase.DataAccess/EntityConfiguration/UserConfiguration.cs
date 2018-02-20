@@ -8,6 +8,7 @@ namespace ERNI.PhotoDatabase.DataAccess.EntityConfiguration
         public override void Configure(EntityTypeBuilder<User> builder)
         {
             builder.HasKey(bc => bc.Id);
+            builder.HasIndex(bc => bc.UniqueIdentifier).IsUnique();
         }
     }
 

@@ -86,11 +86,21 @@ namespace ERNI.PhotoDatabase.DataAccess.Migrations
 
                     b.Property<bool>("CanUpload");
 
+                    b.Property<string>("FirstName");
+
                     b.Property<bool>("IsAdmin");
+
+                    b.Property<string>("LastName");
 
                     b.Property<string>("UniqueIdentifier");
 
+                    b.Property<string>("UserName");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UniqueIdentifier")
+                        .IsUnique()
+                        .HasFilter("[UniqueIdentifier] IS NOT NULL");
 
                     b.ToTable("Users");
                 });

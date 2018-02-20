@@ -63,7 +63,10 @@ namespace ERNI.PhotoDatabase.Server
 
                         user = new User
                         {
-                            UniqueIdentifier = sub
+                            UniqueIdentifier = sub,
+                            FirstName = context.Principal.Claims.Single(c => c.Type == "given_name").Value,
+                            LastName = context.Principal.Claims.Single(c => c.Type == "family_name").Value,
+                            UserName = context.Principal.Claims.Single(c => c.Type == "upn").Value
                         };
                         db.Users.Add(user);
                         db.SaveChanges();
@@ -104,15 +107,6 @@ namespace ERNI.PhotoDatabase.Server
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-            }
-
-            using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
-            {
-                var context = serviceScope.ServiceProvider.GetRequiredService<DatabaseContext>();
-
-                context.Database.EnsureCreated();
-
-                context.Database.Migrate();
             }
 
             ConfigureImageStore(app.ApplicationServices).Wait();
