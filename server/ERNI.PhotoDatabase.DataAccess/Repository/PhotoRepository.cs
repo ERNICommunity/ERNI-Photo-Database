@@ -85,7 +85,7 @@ namespace ERNI.PhotoDatabase.DataAccess.Repository
             // These objects get assigned to their photos automatically by Entity framework.
             DbContext.PhotoTag.Include(_ => _.Tag).Where(_ => photoIds.Contains(_.PhotoId)).ToArray();
 
-            var oderedPhotos = photos
+            var orderedPhotos = photos
                 .Select(_ => new
                 {
                     Photo = _,
@@ -96,7 +96,7 @@ namespace ERNI.PhotoDatabase.DataAccess.Repository
                 .Select(_ => _.Photo)
                 .ToArray();
 
-            return Task.FromResult(oderedPhotos);
+            return Task.FromResult(orderedPhotos);
         }
     }
 }
