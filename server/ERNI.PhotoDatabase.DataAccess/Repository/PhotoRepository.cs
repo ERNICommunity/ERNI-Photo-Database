@@ -86,7 +86,12 @@ namespace ERNI.PhotoDatabase.DataAccess.Repository
             DbContext.PhotoTag.Include(_ => _.Tag).Where(_ => photoIds.Contains(_.PhotoId)).ToArray();
 
             var orderedPhotos = photos
-                .Select(_ => new { Photo = _, Count = expressions.Count(e => _.Name.Contains(e) || _.PhotoTags.Any(t => e == t.Tag.Text)) })
+                .Select(_ => new
+                {
+                    Photo = _,
+                    Count = expressions.Count(e => _.Name.ToLowerInvariant().Contains(e.ToLowerInvariant())
+                        || _.PhotoTags.Any(t => string.Equals(e.ToLowerInvariant(), t.Tag.Text.ToLowerInvariant(), StringComparison.OrdinalIgnoreCase)))
+                })
                 .OrderByDescending(_ => _.Count)
                 .Select(_ => _.Photo)
                 .ToArray();
