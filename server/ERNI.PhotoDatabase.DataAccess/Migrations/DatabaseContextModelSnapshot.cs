@@ -94,7 +94,7 @@ namespace ERNI.PhotoDatabase.DataAccess.Migrations
 
                     b.Property<string>("UniqueIdentifier");
 
-                    b.Property<string>("UserName");
+                    b.Property<string>("Username");
 
                     b.HasKey("Id");
 

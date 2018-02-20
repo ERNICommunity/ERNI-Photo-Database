@@ -20,7 +20,7 @@ namespace ERNI.PhotoDatabase.DataAccess.Migrations
                     IsAdmin = table.Column<bool>(nullable: false),
                     LastName = table.Column<string>(nullable: true),
                     UniqueIdentifier = table.Column<string>(nullable: true),
-                    UserName = table.Column<string>(nullable: true)
+                    Username = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {

@@ -11,7 +11,7 @@ using System;
 namespace ERNI.PhotoDatabase.DataAccess.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20180220073855_UserData")]
+    [Migration("20180220075028_UserData")]
     partial class UserData
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -95,7 +95,7 @@ namespace ERNI.PhotoDatabase.DataAccess.Migrations
 
                     b.Property<string>("UniqueIdentifier");
 
-                    b.Property<string>("UserName");
+                    b.Property<string>("Username");
 
                     b.HasKey("Id");
 
