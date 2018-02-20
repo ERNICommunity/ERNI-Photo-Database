@@ -15,12 +15,23 @@ namespace ERNI.PhotoDatabase.DataAccess.Repository
         {
         }
 
-        public Task<List<Photo>> GetPhotosByTag(string tag, CancellationToken cancellationToken)
+        public Task<Photo[]> GetPhotosByTag(string[] tags, CancellationToken cancellationToken)
         {
-            var query = DbContext.Photos.Include(p => p.PhotoTags).ThenInclude(pt => pt.Tag)
-                .Where(_ => _.PhotoTags.Any(__ => __.Tag.Text.Contains(tag)));
+            var photos = DbContext.Photos.Where(_ => _.PhotoTags.Any(t => tags.Contains(t.Tag.Text))).ToArray();
 
-            return query.ToListAsync(cancellationToken);
+            var photoIds = photos.Select(_ => _.Id).ToArray();
+
+            // This query loads the tags of the photos.
+            // These objects get assigned to their photos automatically by Entity framework.
+            DbContext.PhotoTag.Include(_ => _.Tag).Where(_ => photoIds.Contains(_.PhotoId)).ToArray();
+
+            var oderedPhotos = photos
+                .Select(_ => new { Photo = _, Count = _.PhotoTags.Count(t => tags.Contains(t.Tag.Text)) })
+                .OrderByDescending(_ => _.Count)
+                .Select(_ => _.Photo)
+                .ToArray();
+
+            return Task.FromResult(oderedPhotos);
         }
 
         public Task<List<Photo>> GetAllPhotos(CancellationToken cancellationToken)
@@ -60,6 +71,27 @@ namespace ERNI.PhotoDatabase.DataAccess.Repository
         public void DeletePhoto(Photo photo)
         {
             DbContext.Photos.Remove(photo);
+        }
+
+        public Task<Photo[]> SearchPhotos(string[] expressions, CancellationToken cancellationToken)
+        {
+            var photos = DbContext.Photos
+                .Where(_ => expressions.Any(e => _.Name.Contains(e)) || _.PhotoTags.Any(t => expressions.Contains(t.Tag.Text)))
+                .ToArray();
+
+            var photoIds = photos.Select(_ => _.Id).ToArray();
+
+            // This query loads the tags of the photos.
+            // These objects get assigned to their photos automatically by Entity framework.
+            DbContext.PhotoTag.Include(_ => _.Tag).Where(_ => photoIds.Contains(_.PhotoId)).ToArray();
+
+            var orderedPhotos = photos
+                .Select(_ => new { Photo = _, Count = expressions.Count(e => _.Name.Contains(e) || _.PhotoTags.Any(t => e == t.Tag.Text)) })
+                .OrderByDescending(_ => _.Count)
+                .Select(_ => _.Photo)
+                .ToArray();
+
+            return Task.FromResult(orderedPhotos);
         }
     }
 }

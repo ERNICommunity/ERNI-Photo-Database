@@ -99,7 +99,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
         [HttpGet("search/tag/{tag}")]
         public async Task<IActionResult> GetImagesByTag(string tag, CancellationToken cancellationToken)
         {
-            var photos = await this.Repository.GetPhotosByTag(tag, cancellationToken);
+            var photos = await this.Repository.GetPhotosByTag(tag.ToLowerInvariant().Split(" "), cancellationToken);
 
             return Ok(photos);
         }

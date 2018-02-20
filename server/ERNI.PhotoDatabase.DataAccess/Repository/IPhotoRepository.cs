@@ -8,7 +8,9 @@ namespace ERNI.PhotoDatabase.DataAccess.Repository
 {
     public interface IPhotoRepository
     {
-        Task<List<Photo>> GetPhotosByTag(string tag, CancellationToken cancellationToken);
+        Task<Photo[]> GetPhotosByTag(string[] tags, CancellationToken cancellationToken);
+
+        Task<Photo[]> SearchPhotos(string[] expressions, CancellationToken cancellationToken);
 
         Task<List<Photo>> GetAllPhotos(CancellationToken cancellationToken);
 

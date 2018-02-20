@@ -36,14 +36,14 @@ namespace ERNI.PhotoDatabase.Server.Controllers
         {
             var data = tagRepository.GetMostUsedTags(cancellationToken);
 
-            return View(data.Select(_ => (_.Text, Count: _.PhotoTags.Count)).OrderByDescending(_ => _.Count).Take(10));
+            return View(data.Select(_ => (Text: _.Text, Count: _.PhotoTags.Count)).OrderByDescending(_ => _.Count).Take(10));
         }
 
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> SearchResult(string query, CancellationToken cancellationToken)
         {
-            var images = await photoRepository.GetPhotosByTag(query, cancellationToken);
+            var images = await photoRepository.SearchPhotos(query.ToLowerInvariant().Split(" "), cancellationToken);
 
             return View(images.Select(_ => new PhotoModel
             {
