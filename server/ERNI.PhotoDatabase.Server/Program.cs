@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore;
+﻿using ERNI.PhotoDatabase.DataAccess;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ERNI.PhotoDatabase.Server
 {
@@ -7,7 +10,16 @@ namespace ERNI.PhotoDatabase.Server
     {
         public static void Main(string[] args)
         {
-            BuildWebHost(args).Run();
+            var host = BuildWebHost(args);
+
+            using (var serviceScope = host.Services.GetService<IServiceScopeFactory>().CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetRequiredService<DatabaseContext>();
+
+                context.Database.Migrate();
+            }
+
+            host.Run();
         }
 
         public static IWebHost BuildWebHost(string[] args) =>

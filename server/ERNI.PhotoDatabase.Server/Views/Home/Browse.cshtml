@@ -1,4 +1,6 @@
-﻿@model ERNI.PhotoDatabase.Server.Controllers.PhotoModel[]
+﻿@using ERNI.PhotoDatabase.Server.Utils
+
+@model ERNI.PhotoDatabase.Server.Controllers.PhotoModel[]
 @{
     ViewData["Title"] = "Browse";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -18,39 +20,43 @@
                 <div class="overlay">
                     <h7>@sr.Name</h7>
 
-                    <a href="#" class="delete float-right" data-photo-id="@sr.Id" data-toggle="modal" data-target="#exampleModal">
-                        <img src="~/img/icons/ic_delete_white_24dp_1x.png" />
-                    </a>
 
-                    <a asp-controller="Tag" asp-action="Index" asp-route-fileIds="@sr.Id" class="float-right">
-                        <img src="~/img/icons/ic_mode_edit_white_24dp_1x.png" />
-                    </a>
+                    @if (User.CanWrite())
+                    {
+                        <a href="#" class="delete float-right" data-photo-id="@sr.Id" data-toggle="modal" data-target="#exampleModal">
+                            <img src="~/img/icons/ic_delete_white_24dp_1x.png" />
+                        </a>
+
+                        <a asp-controller="Tag" asp-action="Index" asp-route-fileIds="@sr.Id" class="float-right">
+                            <img src="~/img/icons/ic_mode_edit_white_24dp_1x.png" />
+                        </a>
+                    }
                 </div>
             </div>
         </div>
     }
 
 </div>
-    
 
-        @Html.Partial("/Views/Shared/Partial/ConfirmDeletePhoto.cshtml")
 
-        @section Scripts
-            {
-            <script src="/js/deletePhoto.js"></script>
+@Html.Partial("/Views/Shared/Partial/ConfirmDeletePhoto.cshtml")
 
-            <script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
-            <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
-            <script type="text/javascript">
-                var grid = $('.grid').masonry({
-                    itemSelector: '.grid-item-outer',
-                    columnWidth: '.grid-sizer'
-                });
+@section Scripts
+    {
+    <script src="/js/deletePhoto.js"></script>
 
-                // layout Masonry after each image loads
-                grid.imagesLoaded().progress(function () {
-                    grid.masonry('layout');
-                });
+    <script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
+    <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
+    <script type="text/javascript">
+        var grid = $('.grid').masonry({
+            itemSelector: '.grid-item-outer',
+            columnWidth: '.grid-sizer'
+        });
 
-            </script>
-        }
+        // layout Masonry after each image loads
+        grid.imagesLoaded().progress(function () {
+            grid.masonry('layout');
+        });
+
+    </script>
+}
