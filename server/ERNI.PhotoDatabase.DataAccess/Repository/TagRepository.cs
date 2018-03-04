@@ -15,11 +15,11 @@ namespace ERNI.PhotoDatabase.DataAccess.Repository
         {
         }
 
-        public List<Tag> GetMostUsedTags(CancellationToken cancellationToken)
+        public Task<List<Tag>> GetMostUsedTags(CancellationToken cancellationToken)
         {
             var query = DbContext.Tags.Include(t => t.PhotoTags).OrderByDescending(t => t.PhotoTags.Count);
 
-            return query.ToList();
+            return query.ToListAsync();
         }
 
         public Task<List<Tag>> GetAllTags(CancellationToken cancellationToken)
