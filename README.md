@@ -12,11 +12,11 @@ For development, you need to add your own user secret for the application pick i
 1. Open Solution explorer and right-click the ERNI.PhotoDatabase.Server project
 2. In the context menu, select Manage user secrets
 3. Put the following as the content of the file that opens:
-```
+```json
 {
   "ConnectionStrings": {
     "Database": "your-sql-server-connection-string",
-	"BlobStorage": "your-blob-storage-connection-string"
+    "BlobStorage": "your-blob-storage-connection-string"
   },
   "Authentication": {
     "AzureAd": {
