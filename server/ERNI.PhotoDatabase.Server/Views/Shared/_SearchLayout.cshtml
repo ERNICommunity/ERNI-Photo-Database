@@ -13,11 +13,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="~/css/StyleSheet.css" />
 </head>
-<body class="bg">
+<body class="bg text-black">
 
-    <nav id="navbar" class="navbar navbar-expand-md navbar-dark fixed-top search-navigation">
+    <nav id="navbar" class="navbar navbar-expand-md fixed-top search-navigation">
         @*bg-dark*@
-        <a class="navbar-brand" href="/">ERNI Photobank</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -38,9 +37,10 @@
                 </li>
             </ul>
         </div>
+        <a class="navbar-brand" href="/"><img src="~/img/ERNI-logo_dark-blue.png" height="30" alt="logo" /></a>
     </nav>
 
-    <div class="container h-100 text-white" style="padding-top:5rem;" id="header">
+    <div class="container h-100" style="padding-top:5rem;" id="header">
         @RenderBody()
     </div>
 
