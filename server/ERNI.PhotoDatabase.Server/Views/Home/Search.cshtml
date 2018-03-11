@@ -8,11 +8,12 @@
 
 
     <div class="row justify-content-center align-items-center h-100">
-        <div class="jumbotron col-sm-12 search-navigation">
+        <div class="jumbotron col-sm-12 search-navigation bg-white border">
         <form asp-controller="Home" asp-action="SearchResult" method="get" asp-antiforgery="false" class="w-100">
             <div>
                 @*justify-content-center align-items-center*@
 
+                <h1>Search</h1>
                 <label for="inputPassword2" class="sr-only">Password</label>
                 <input id="search-field" type="text" placeholder="Type to search..." aria-label="Search" name="query" class="form-control form-control-lg" onkeypress="$('#search-button').prop('disabled', $('#search-field').val() === '')" />
                 @*<button class="btn btn-info btn-lg btn-block col-sm-1 my-2 my-sm-0" type="submit" id="search-button" disabled="disabled">Search</button>*@

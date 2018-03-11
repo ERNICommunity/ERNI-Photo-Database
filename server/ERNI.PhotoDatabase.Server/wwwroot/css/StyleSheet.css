@@ -1,5 +1,14 @@
 ﻿body, html {
     height: 100%;
+    /*font-family:Calibri;*/
+}
+
+.text-black {
+    color:#3c3c3c;
+}
+
+.text-dark-blue {
+    color:#123372;
 }
 
 .tags a.badge {
@@ -8,7 +17,26 @@
 
 .navbar {
     margin-bottom: 10px;
+    background-color:#ffffff;
 }
+
+a {
+    color: #3c3c3c;
+    font-weight:bold;
+}
+
+    a:hover {
+        color: #bebcbc;
+    }
+
+.nav-link {
+    color: #5b5b5b;
+    font-weight: bold;
+}
+
+    .nav-link:hover {
+        color: #bebcbc;
+    }
 
 .save-button-row {
     margin-top: 10px;
@@ -20,7 +48,6 @@
     background-size: cover;
     background-attachment: fixed;
 }
-
 .minheight-100 {
     min-height: 100%;
 }
@@ -31,14 +58,15 @@
 }
 
 .search-navigation {
-    background: rgba(0,0,0,0.3);
+    /*background: rgba(0,0,0,0.3);*/
     border-bottom: solid 1px;
     border-bottom-color: rgba(0,0,0,0.1);
 }
 
 .link-tag {
-    color: white;
-    font-weight: bold;
+    /*color: white;*/
+    /*font-weight: bold;*/
+    color: #bebcbc;
 }
 
     #photos .item {
@@ -86,4 +114,9 @@
 .grid-sizer,
 .grid-item-outer {
     width: 25%;
+}
+
+.navbar-brand {
+    margin-right: 0;
+    margin-left: 1em;
 }
