@@ -7,8 +7,18 @@
     ViewData["Title"] = "Search Results";
 }
 
+
+
 <div class="grid" id="photos">
     <div class="grid-sizer"></div>
+
+    @if (!Model.Any())
+    {
+        <p class="lead text-center">
+            No photos found
+        </p>
+    }
+
     @foreach (var sr in Model)
     {
         <div class="grid-item-outer">
