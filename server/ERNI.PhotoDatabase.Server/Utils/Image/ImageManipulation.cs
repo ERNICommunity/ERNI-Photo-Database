@@ -82,6 +82,8 @@ namespace ERNI.PhotoDatabase.Server.Utils.Image
 
             }
 
+            original.Dispose();
+
             return bitmap;
         }
 
@@ -90,9 +92,14 @@ namespace ERNI.PhotoDatabase.Server.Utils.Image
             using (var ms = new MemoryStream(sourceImageData))
             using (var inputStream = new SKManagedStream(ms, false))
             using (var codec = SKCodec.Create(inputStream))
-            using (var bmp = SKBitmap.Decode(codec))
-            using (var sourceBitmap = RotateAndFlip(bmp, codec.Origin))
             {
+                var sourceBitmap = SKBitmap.Decode(codec);
+
+                if (codec.Origin != SKCodecOrigin.TopLeft)
+                {
+                    sourceBitmap = RotateAndFlip(sourceBitmap, codec.Origin);
+                }
+
                 var sourceSize = Math.Max(sourceBitmap.Width, sourceBitmap.Height);
                 var ratio = size / (double)sourceSize;
 
@@ -104,6 +111,8 @@ namespace ERNI.PhotoDatabase.Server.Utils.Image
                     targetBitmap.Encode(thumbnailStream, SKEncodedImageFormat.Jpeg, 85);
 
                     thumbnailStream.Flush();
+
+                    sourceBitmap.Dispose();
                     return targetMemoryStream.ToArray();
                 }
             }
