@@ -98,5 +98,10 @@ namespace ERNI.PhotoDatabase.DataAccess.Repository
 
             return Task.FromResult(orderedPhotos);
         }
+
+        public Task<List<Photo>> GetPhotos(int count, int skip, CancellationToken cancellationToken)
+        {
+            return DbContext.Photos.Skip(skip).Take(count).Include(p => p.PhotoTags).ThenInclude(pt => pt.Tag).ToListAsync(cancellationToken);
+        }
     }
 }

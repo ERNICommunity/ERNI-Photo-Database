@@ -1,10 +1,43 @@
 ﻿@using ERNI.PhotoDatabase.Server.Utils
+@using Remotion.Linq.Parsing.Structure.IntermediateModel
 
 @model ERNI.PhotoDatabase.Server.Controllers.PhotoModel[]
 @{
     ViewData["Title"] = "Browse";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+
+<nav aria-label="...">
+    <ul class="pagination">
+
+        @if (ViewBag.Page > 1)
+        {
+            <li class="page-item">
+                <a class="page-link" asp-route-page="@(ViewBag.Page - 1)" tabindex="-1">Previous</a>
+            </li>
+        }
+        else
+        {
+            <li class="page-item disabled">
+                <a class="page-link" tabindex="-1">Previous</a>
+            </li>
+        }
+        @for (var i = Math.Max(ViewBag.Page - 1, 1); i < Math.Max(ViewBag.Page - 1, 1) + 3; i++)
+        {
+            if (ViewBag.Page == i)
+            {
+                <li class="page-item active"><a class="page-link" asp-route-page="@i">@i</a></li>
+            }
+            else
+            {
+                <li class="page-item"><a class="page-link" asp-route-page="@i">@i</a></li>
+            }
+        }
+        <li class="page-item">
+            <a class="page-link" asp-route-page="@(ViewBag.Page + 1)">Next</a>
+        </li>
+    </ul>
+</nav>
 
 <div class="grid" id="photos">
     <div class="grid-sizer"></div>
@@ -37,6 +70,38 @@
     }
 
 </div>
+
+<nav aria-label="...">
+    <ul class="pagination">
+
+        @if (ViewBag.Page > 1)
+        {
+            <li class="page-item">
+                <a class="page-link" asp-route-page="@(ViewBag.Page - 1)" tabindex="-1">Previous</a>
+            </li>
+        }
+        else
+        {
+            <li class="page-item disabled">
+                <a class="page-link" tabindex="-1">Previous</a>
+            </li>
+        }
+        @for (var i = Math.Max(ViewBag.Page - 1, 1); i < Math.Max(ViewBag.Page - 1, 1) + 3; i++)
+        {
+            if (ViewBag.Page == i)
+            {
+                 <li class="page-item active"><a class="page-link" asp-route-page="@i">@i</a></li>
+            }
+             else
+             {
+                 <li class="page-item"><a class="page-link" asp-route-page="@i">@i</a></li>
+             }
+        }
+        <li class="page-item">
+            <a class="page-link" asp-route-page="@(ViewBag.Page + 1)">Next</a>
+        </li>
+    </ul>
+</nav>
 
 
 @Html.Partial("/Views/Shared/Partial/ConfirmDeletePhoto.cshtml")
