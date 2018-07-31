@@ -25,7 +25,7 @@
         <div class="collapse navbar-collapse" id="navbarsExampleDefault">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                    <a class="nav-link active" asp-controller="Home" asp-action="Browse">Browse</a>
+                    <a class="nav-link active" asp-controller="Home" asp-action="Browse" asp-route-page="">Browse</a>
                 </li>
                 @if (User.CanWrite())
                 {

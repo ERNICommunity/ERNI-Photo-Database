@@ -57,10 +57,17 @@ namespace ERNI.PhotoDatabase.Server.Controllers
             }).ToArray());
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Browse(CancellationToken cancellationToken)
+        [HttpGet("browse/{page?}")]
+        public async Task<IActionResult> Browse(int? page, CancellationToken cancellationToken)
         {
-            var photos = await photoRepository.GetAllPhotos(cancellationToken);
+            var photosPerPage = 15;
+
+            page = page ?? 1;
+
+            var photos = await photoRepository.GetPhotos(photosPerPage, (page.Value - 1) * photosPerPage, cancellationToken);
+
+            ViewBag.Page = page;
+
             return View(photos.Select(_ => new PhotoModel
             {
                 Id = _.Id.ToString(),
