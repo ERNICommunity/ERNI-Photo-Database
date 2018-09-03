@@ -21,7 +21,7 @@ namespace ERNI.PhotoDatabase.Server.Test
                 MockDatabase(mock);
                 var sut = mock.Create<TagRepository>();
 
-                var result = sut.GetMostUsedTags(CancellationToken.None);
+                var result = await sut.GetMostUsedTags(CancellationToken.None);
 
                 result.ShouldBe(result.OrderByDescending(_ => _.PhotoTags.Count));
             }
