@@ -7,15 +7,15 @@ namespace ERNI.PhotoDatabase.Server.Utils.Image
 {
     public class ImageManipulation : IImageManipulation
     {
-        private SKBitmap RotateAndFlip(SKBitmap original, SKCodecOrigin origin)
+        private SKBitmap RotateAndFlip(SKBitmap original, SKEncodedOrigin origin)
         {
             // these are the origins that represent a 90 degree turn in some fashion
             var differentOrientations = new[]
             {
-                SKCodecOrigin.LeftBottom,
-                SKCodecOrigin.LeftTop,
-                SKCodecOrigin.RightBottom,
-                SKCodecOrigin.RightTop
+                SKEncodedOrigin.LeftBottom,
+                SKEncodedOrigin.LeftTop,
+                SKEncodedOrigin.RightBottom,
+                SKEncodedOrigin.RightTop
             };
 
             // check if we need to turn the image
@@ -30,21 +30,21 @@ namespace ERNI.PhotoDatabase.Server.Utils.Image
             // todo: the stuff in this switch statement should be rewritten to use pointers
             switch (origin)
             {
-                case SKCodecOrigin.LeftBottom:
+                case SKEncodedOrigin.LeftBottom:
 
                     for (var x = 0; x < original.Width; x++)
                         for (var y = 0; y < original.Height; y++)
                             bitmap.SetPixel(y, original.Width - 1 - x, original.GetPixel(x, y));
                     break;
 
-                case SKCodecOrigin.RightTop:
+                case SKEncodedOrigin.RightTop:
 
                     for (var x = 0; x < original.Width; x++)
                         for (var y = 0; y < original.Height; y++)
                             bitmap.SetPixel(original.Height - 1 - y, x, original.GetPixel(x, y));
                     break;
 
-                case SKCodecOrigin.RightBottom:
+                case SKEncodedOrigin.RightBottom:
 
                     for (var x = 0; x < original.Width; x++)
                         for (var y = 0; y < original.Height; y++)
@@ -52,28 +52,28 @@ namespace ERNI.PhotoDatabase.Server.Utils.Image
 
                     break;
 
-                case SKCodecOrigin.LeftTop:
+                case SKEncodedOrigin.LeftTop:
 
                     for (var x = 0; x < original.Width; x++)
                         for (var y = 0; y < original.Height; y++)
                             bitmap.SetPixel(y, x, original.GetPixel(x, y));
                     break;
 
-                case SKCodecOrigin.BottomLeft:
+                case SKEncodedOrigin.BottomLeft:
 
                     for (var x = 0; x < original.Width; x++)
                         for (var y = 0; y < original.Height; y++)
                             bitmap.SetPixel(x, original.Height - 1 - y, original.GetPixel(x, y));
                     break;
 
-                case SKCodecOrigin.BottomRight:
+                case SKEncodedOrigin.BottomRight:
 
                     for (var x = 0; x < original.Width; x++)
                         for (var y = 0; y < original.Height; y++)
                             bitmap.SetPixel(original.Width - 1 - x, original.Height - 1 - y, original.GetPixel(x, y));
                     break;
 
-                case SKCodecOrigin.TopRight:
+                case SKEncodedOrigin.TopRight:
 
                     for (var x = 0; x < original.Width; x++)
                         for (var y = 0; y < original.Height; y++)
@@ -95,9 +95,9 @@ namespace ERNI.PhotoDatabase.Server.Utils.Image
             {
                 var sourceBitmap = SKBitmap.Decode(codec);
 
-                if (codec.Origin != SKCodecOrigin.TopLeft)
+                if (codec.EncodedOrigin != SKEncodedOrigin.TopLeft)
                 {
-                    sourceBitmap = RotateAndFlip(sourceBitmap, codec.Origin);
+                    sourceBitmap = RotateAndFlip(sourceBitmap, codec.EncodedOrigin);
                 }
 
                 var sourceSize = Math.Max(sourceBitmap.Width, sourceBitmap.Height);
@@ -107,9 +107,9 @@ namespace ERNI.PhotoDatabase.Server.Utils.Image
                 using (var targetMemoryStream = new MemoryStream())
                 using (var thumbnailStream = new SKManagedWStream(targetMemoryStream))
                 {
-                    sourceBitmap.Resize(targetBitmap, SKBitmapResizeMethod.Lanczos3);
-                    targetBitmap.Encode(thumbnailStream, SKEncodedImageFormat.Jpeg, 85);
-
+                    sourceBitmap.ScalePixels(targetBitmap, SKFilterQuality.High);
+                    
+                    SKPixmap.Encode(thumbnailStream, targetBitmap, SKEncodedImageFormat.Jpeg, 85);
                     thumbnailStream.Flush();
 
                     sourceBitmap.Dispose();
