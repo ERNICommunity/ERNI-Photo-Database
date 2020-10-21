@@ -1,6 +1,6 @@
 # ERNI-Photo-Database
 
-:warning: **REPOSITORY NOT ACTIVE SINCE 2018 Dependabot alerts in git security settings disabled**
+:warning: **REPOSITORY NOT ACTIVE SINCE 2019 Dependabot alerts in git security settings disabled**
 
 ![badge](https://mar3ek.visualstudio.com/_apis/public/build/definitions/1f269315-a206-4cf0-b019-922c68fb0593/7/badge)
 
