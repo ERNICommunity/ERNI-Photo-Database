@@ -10,6 +10,7 @@ using ERNI.PhotoDatabase.DataAccess.Repository;
 using ERNI.PhotoDatabase.DataAccess.UnitOfWork;
 using ERNI.PhotoDatabase.Server.Configuration;
 using ERNI.PhotoDatabase.Server.Utils.Image;
+using ERNI.PhotoDatabase.Annotator;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Authorization;
@@ -22,27 +23,41 @@ namespace ERNI.PhotoDatabase.Server.Controllers
     public class PhotoController : Controller
     {
         private readonly Lazy<IPhotoRepository> repository;
+        private readonly Lazy<ITagRepository> tagRepository;
         private readonly Lazy<ImageStore> imageStore;
         private readonly Lazy<IUnitOfWork> unitOfWork;
         private readonly Lazy<IImageManipulation> imageTools;
+        private readonly Lazy<PhotoAnnotator> photoAnnotator;
         private readonly IOptions<ImageSizesSettings> settings;
 
-        public PhotoController(Lazy<IPhotoRepository> repository, Lazy<ImageStore> imageStore, Lazy<IUnitOfWork> unitOfWork, Lazy<IImageManipulation> imageTools, IOptions<ImageSizesSettings> settings)
+        public PhotoController(Lazy<IPhotoRepository> repository,
+            Lazy<ITagRepository> tagRepository,
+            Lazy<ImageStore> imageStore, 
+            Lazy<IUnitOfWork> unitOfWork, 
+            Lazy<IImageManipulation> imageTools, 
+            IOptions<ImageSizesSettings> settings,
+            Lazy<PhotoAnnotator> photoAnnotator)
         {
             this.repository = repository;
+            this.tagRepository = tagRepository;
             this.imageStore = imageStore;
             this.unitOfWork = unitOfWork;
             this.imageTools = imageTools;
             this.settings = settings;
+            this.photoAnnotator = photoAnnotator;
         }
 
         private IPhotoRepository Repository => repository.Value;
+
+        private ITagRepository TagRepository => tagRepository.Value;
 
         private ImageStore ImageStore => imageStore.Value;
 
         private IUnitOfWork UnitOfWork => unitOfWork.Value;
 
         private IImageManipulation ImageTools => imageTools.Value;
+
+        private PhotoAnnotator PhotoAnnotator => photoAnnotator.Value;
 
         [HttpGet]
         public async Task<IActionResult> Get(CancellationToken cancellationToken)
@@ -132,12 +147,13 @@ namespace ERNI.PhotoDatabase.Server.Controllers
                     await ImageStore.SaveImageBlobAsync(thumbnailBlob, cancellationToken);
 
                     var photo = Repository.StorePhoto(formFile.FileName, fullSizeBlob.Id, thumbnailBlob.Id, formFile.ContentType, width, height);
-
+                    
                     photos.Add(photo);
                 }
             }
 
             await this.UnitOfWork.SaveChanges(cancellationToken);
+            await PhotoAnnotator.AnnotatePhotos(photos.Select(_ => _.Id));
 
             return RedirectToAction("Index", "Tag", new {fileIds = photos.Select(_ => _.Id).ToList()});
         }

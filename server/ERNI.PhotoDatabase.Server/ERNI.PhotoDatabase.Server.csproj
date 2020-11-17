@@ -40,6 +40,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ERNI.PhotoDatabase.Annotator\ERNI.PhotoDatabase.Annotator.csproj" />
     <ProjectReference Include="..\ERNI.PhotoDatabase.DataAccess\ERNI.PhotoDatabase.DataAccess.csproj" />
   </ItemGroup>
 
