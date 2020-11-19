@@ -129,7 +129,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
         [Authorize(Roles = "uploader")]
         public async Task<IActionResult> Upload(List<IFormFile> files, CancellationToken cancellationToken)
         {
-            var photos = new List<Photo>();
+            Dictionary<Photo, string[]> taggedPhotos = new Dictionary<Photo, string[]>();
 
             foreach (var formFile in files)
             {
@@ -146,16 +146,26 @@ namespace ERNI.PhotoDatabase.Server.Controllers
                     await ImageStore.SaveImageBlobAsync(fullSizeBlob, cancellationToken);
                     await ImageStore.SaveImageBlobAsync(thumbnailBlob, cancellationToken);
 
+                    var tags = PhotoAnnotator.AnnotatePhoto(data);
+
                     var photo = Repository.StorePhoto(formFile.FileName, fullSizeBlob.Id, thumbnailBlob.Id, formFile.ContentType, width, height);
-                    
-                    photos.Add(photo);
+
+                    taggedPhotos.Add(photo, tags);
                 }
             }
 
             await this.UnitOfWork.SaveChanges(cancellationToken);
-            await PhotoAnnotator.AnnotatePhotos(photos.Select(_ => _.Id));
+            using (var t = await this.UnitOfWork.BeginTransaction(cancellationToken))
+            {
+                foreach (var tag in taggedPhotos)
+                {
+                    await TagRepository.SetTagsForImage(tag.Key.Id, tag.Value, cancellationToken);
+                    await this.UnitOfWork.SaveChanges(cancellationToken);
+                }
+                t.Commit();
+            }
 
-            return RedirectToAction("Index", "Tag", new {fileIds = photos.Select(_ => _.Id).ToList()});
+            return RedirectToAction("Index", "Tag", new {fileIds = taggedPhotos.Select(_ => _.Key.Id).ToList()});
         }
 
         // DELETE api/values

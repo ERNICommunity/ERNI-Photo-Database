@@ -51,6 +51,37 @@ namespace ERNI.PhotoDatabase.Annotator
             return imagesTags;
         }
 
+        public string[] MakePrediction(Bitmap bmp)
+        {
+            MLContext mlContext = new MLContext();
+            Dictionary<string, string[]> imagesTags = new Dictionary<string, string[]>();
+            List<string> tags = new List<string>();
+            try
+            {
+                var modelScorer = new OnnxModelScorer2(FileUtils.ImagesFolder, FileUtils.ModelFilePath, mlContext);
+
+                // Use model to score data
+                float[] probability = modelScorer.Score(bmp);
+
+                YoloOutputParser parser = new YoloOutputParser();
+
+                var boxes = parser.ParseOutputs(probability);
+                var boundingBoxes = parser.FilterBoundingBoxes(boxes, 5, .5F);
+
+                string imageFileName = "imageName";
+                IList<YoloBoundingBox> detectedObjects = boundingBoxes;
+
+                imagesTags.Add(imageFileName, detectedObjects.Select(_ => _.Label).ToArray());
+                tags = detectedObjects.Select(_ => _.Label).Distinct().ToList();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+
+            return tags.ToArray();
+        }
+
         private static void DrawBoundingBox(string inputImageLocation, string outputImageLocation, string imageName, IList<YoloBoundingBox> filteredBoundingBoxes)
         {
             Image image = Image.FromFile(Path.Combine(inputImageLocation, imageName));

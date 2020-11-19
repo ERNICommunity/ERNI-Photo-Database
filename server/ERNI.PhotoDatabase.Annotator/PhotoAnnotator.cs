@@ -5,6 +5,7 @@ using ERNI.PhotoDatabase.DataAccess.Repository;
 using ERNI.PhotoDatabase.DataAccess.UnitOfWork;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -54,6 +55,19 @@ namespace ERNI.PhotoDatabase.Annotator
             await SaveTags(processedImages.ToList(), CancellationToken.None);
 
             //await HouseKeeping();
+        }
+
+        public string[] AnnotatePhoto(byte[] photoData)
+        {
+            var predictor = new AnnotationPredictor();
+            string[] tags;
+            Bitmap bmp;
+            using (var ms = new MemoryStream(photoData))
+            {
+                bmp = new Bitmap(ms);
+                tags = predictor.MakePrediction(bmp);
+            }
+            return tags;
         }
 
         private async Task DownloadPhotos(IEnumerable<int> photoIds, CancellationToken cancellationToken)
