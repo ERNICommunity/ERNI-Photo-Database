@@ -14,7 +14,7 @@ namespace ERNI.PhotoDatabase.Annotator
 {
     public class AnnotationPredictor
     {
-        public (string[], byte[]) MakePrediction(Bitmap bmp, string fileName)
+        public (string[], byte[]) MakePrediction(Bitmap bmp)
         {
             MLContext mlContext = new MLContext();
             List<string> tags = new List<string>();
@@ -32,7 +32,7 @@ namespace ERNI.PhotoDatabase.Annotator
                 var boundingBoxes = parser.FilterBoundingBoxes(boxes, 5, .5F);
 
                 IList<YoloBoundingBox> detectedObjects = boundingBoxes;
-                DrawBoundingBox(ref bmpWithBoxes, detectedObjects, FileUtils.OutputFolder, fileName);
+                DrawBoundingBox(ref bmpWithBoxes, detectedObjects);
 
                 tags = detectedObjects.Select(_ => _.Label).Distinct().ToList();
             }
@@ -45,9 +45,7 @@ namespace ERNI.PhotoDatabase.Annotator
         }
 
         private static void DrawBoundingBox(ref Bitmap image, 
-                                            IList<YoloBoundingBox> filteredBoundingBoxes, 
-                                            string outputImageLocation, 
-                                            string imageName)
+                                            IList<YoloBoundingBox> filteredBoundingBoxes)
         {
             var originalImageHeight = image.Height;
             var originalImageWidth = image.Width;
@@ -88,13 +86,6 @@ namespace ERNI.PhotoDatabase.Annotator
 
                     // Draw bounding box on image
                     thumbnailGraphic.DrawRectangle(pen, x, y, width, height);
-
-                    if (!Directory.Exists(outputImageLocation))
-                    {
-                        Directory.CreateDirectory(outputImageLocation);
-                    }
-
-                    image.Save(Path.Combine(outputImageLocation, imageName));
                 }
             }
         }

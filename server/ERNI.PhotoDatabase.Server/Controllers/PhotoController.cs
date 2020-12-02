@@ -142,7 +142,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
                     var thumbnailData = ImageTools.ResizeTo(data, this.settings.Value.Thumbnail);
                     var (width, height) = ImageTools.GetSize(data);
 
-                    (string[] tags, byte[] taggedPhotoData) = PhotoAnnotator.AnnotatePhoto(thumbnailData, formFile.FileName);
+                    (string[] tags, byte[] taggedPhotoData) = PhotoAnnotator.AnnotatePhoto(thumbnailData);
 
                     var fullSizeBlob = new ImageBlob {Content = data, Id = Guid.NewGuid()};
                     var thumbnailBlob = new ImageBlob {Content = thumbnailData, Id = Guid.NewGuid()};

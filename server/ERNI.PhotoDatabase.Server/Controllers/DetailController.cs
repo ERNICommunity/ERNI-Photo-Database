@@ -34,6 +34,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
                 Width = photo.Width,
                 Height = photo.Height,
                 ThumbnailUrl = Url.Action("Thumbnail", "Photo", new { id = photo.Id }),
+                TaggedThumbnailUrl = Url.Action("Thumbnail", "Photo", new { id = photo.Id, withOverlay = true }),
                 DetailUrl = Url.Action("Index", "Detail", new { id = photo.Id })
             });
         }

@@ -15,5 +15,7 @@
         public string DetailUrl { get; set; }
 
         public string ThumbnailUrl { get; set; }
+        
+        public string TaggedThumbnailUrl { get; set; }
     }
 }

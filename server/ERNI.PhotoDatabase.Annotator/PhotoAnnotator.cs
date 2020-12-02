@@ -5,7 +5,7 @@ namespace ERNI.PhotoDatabase.Annotator
 {
     public class PhotoAnnotator
     {
-        public (string[], byte[]) AnnotatePhoto(byte[] photoData, string fileName)
+        public (string[], byte[]) AnnotatePhoto(byte[] photoData)
         {
             Bitmap bmp;
             string[] tags;
@@ -15,7 +15,7 @@ namespace ERNI.PhotoDatabase.Annotator
             {
                 bmp = new Bitmap(ms);
                 var predictor = new AnnotationPredictor();
-                (tags, pictureData) = predictor.MakePrediction(bmp, fileName);
+                (tags, pictureData) = predictor.MakePrediction(bmp);
             }
             return (tags, pictureData);
         }

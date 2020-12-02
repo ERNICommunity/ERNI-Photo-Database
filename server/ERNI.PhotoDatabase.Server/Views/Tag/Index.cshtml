@@ -3,7 +3,7 @@
 
 @{ Layout = "_Layout";
 
-                var returnAction = Model.Images.Length == 1 ? nameof(TagController.SaveOne) : nameof(TagController.Save); }
+    var returnAction = Model.Images.Length == 1 ? nameof(TagController.SaveOne) : nameof(TagController.Save); }
 
 <div class="container">
     <form asp-controller="Tag" asp-action="@returnAction" method="post" asp-antiforgery="false">
@@ -12,16 +12,25 @@
                 <input type="submit" class="btn btn-primary" value="Save" />
             </div>
         </div>
+        <div class="btn btn-primary image-toggler">
+            <input type="hidden"> Toggle annotation
+        </div>
+
 
         @for (var i = 0; i < Model.Images.Length; ++i)
         {
-@Html.EditorFor(m => m.Images[i])}
+            @Html.EditorFor(m => m.Images[i])
+        }
 
         <div class="row save-button-row">
             <div class="col">
                 <input type="submit" class="btn btn-primary" value="Save" />
             </div>
         </div>
+        <div class="btn btn-primary image-toggler">
+            <input type="hidden"> Toggle annotation
+        </div>
+
     </form>
 </div>
 
@@ -38,15 +47,5 @@
         initializeTagging('@Url.Action("GetTags")');
     </script>
 
-    <script>
-        $('.image-toggler').click(function () {
-            if ($("#image").is(":visible")) {
-                $("#image").hide();
-                $("#image-tag").show();
-            } else {
-                $("#image").show();
-                $("#image-tag").hide();
-            }
-        });
-    </script>
+    <script src="js/toggleOverlay.js"></script>
 }

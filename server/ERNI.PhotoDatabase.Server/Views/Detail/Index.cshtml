@@ -3,16 +3,17 @@
 @using ERNI.PhotoDatabase.Server.Utils
 
 @model ERNI.PhotoDatabase.Server.Controllers.PhotoModel
-@{
+@{ 
     ViewData["Title"] = $"Photo - {Model.Name}";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_Layout.cshtml"; 
 }
 @inject IOptions<ImageSizesSettings> ImageSettings
 
 <div class="row">
     <div class="col">
         <div class="card">
-            <img class="card-img-top" src="@Model.ThumbnailUrl" alt="@Model.Name" style="width:100%;height:100%;">
+            <img id="image-@Model.Name" class="card-img-top image" src="@Model.ThumbnailUrl" alt="@Model.Name" style="width:100%;height:100%;">
+            <img id="image-tag-@Model.Name" class="card-img-top image-tag" src="@Model.TaggedThumbnailUrl" alt="@Model.Name" style="width:100%;height:100%;display:none">
 
             <div class="card-body">
                 <h4 class="card-title">@Model.Name</h4>
@@ -31,9 +32,16 @@
                         <i class="fa fa-tag" aria-hidden="true"></i> Edit tags
                     </a>
                 }
+
+                <div class="btn-group" data-toggle="buttons">
+                    <label class="btn btn-primary image-toggler" data-image-id="#image">
+                        <input type="hidden" name="options" id="option1"> Toggle annotation
+                    </label>
+                </div>
             </div>
         </div>
     </div>
+
     <div class="col">
         <div>Downloads</div>
         <ul>
@@ -45,9 +53,14 @@
             {
                 <li>
                     <a asp-controller="Photo" asp-action="Download" asp-route-id="@Model.Id" asp-route-size="@size">@size px</a>
-                </li>
+                </li>            
             }
         </ul>
     </div>
 </div>
+
+@section Scripts
+{
+    <script src="/js/toggleOverlay.js"></script>
+}
 
