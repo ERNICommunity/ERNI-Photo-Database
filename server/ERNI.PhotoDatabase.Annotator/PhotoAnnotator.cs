@@ -57,17 +57,18 @@ namespace ERNI.PhotoDatabase.Annotator
             //await HouseKeeping();
         }
 
-        public string[] AnnotatePhoto(byte[] photoData)
+        public (string[], byte[]) AnnotatePhoto(byte[] photoData)
         {
             var predictor = new AnnotationPredictor();
             string[] tags;
             Bitmap bmp;
+            byte[] pictureData;
             using (var ms = new MemoryStream(photoData))
             {
                 bmp = new Bitmap(ms);
-                tags = predictor.MakePrediction(bmp);
+                (tags, pictureData) = predictor.MakePrediction(bmp);
             }
-            return tags;
+            return (tags, pictureData);
         }
 
         private async Task DownloadPhotos(IEnumerable<int> photoIds, CancellationToken cancellationToken)

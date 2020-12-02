@@ -8,6 +8,7 @@ using Microsoft.ML;
 using ERNI.PhotoDatabase.Annotator.YoloParser;
 using ERNI.PhotoDatabase.Annotator.DataStructures;
 using ERNI.PhotoDatabase.Annotator.Utils;
+using System.Drawing.Imaging;
 
 namespace ERNI.PhotoDatabase.Annotator
 {
@@ -51,11 +52,12 @@ namespace ERNI.PhotoDatabase.Annotator
             return imagesTags;
         }
 
-        public string[] MakePrediction(Bitmap bmp)
+        public (string[], byte[]) MakePrediction(Bitmap bmp)
         {
             MLContext mlContext = new MLContext();
             Dictionary<string, string[]> imagesTags = new Dictionary<string, string[]>();
             List<string> tags = new List<string>();
+            var bmpWithBoxes = bmp.Clone(new RectangleF(0, 0, bmp.Width, bmp.Height), bmp.PixelFormat);
             try
             {
                 var modelScorer = new OnnxModelScorer2(FileUtils.ImagesFolder, FileUtils.ModelFilePath, mlContext);
@@ -70,6 +72,7 @@ namespace ERNI.PhotoDatabase.Annotator
 
                 string imageFileName = "imageName";
                 IList<YoloBoundingBox> detectedObjects = boundingBoxes;
+                DrawBoundingBox(ref bmpWithBoxes, detectedObjects, FileUtils.OutputFolder, "annImage");
 
                 imagesTags.Add(imageFileName, detectedObjects.Select(_ => _.Label).ToArray());
                 tags = detectedObjects.Select(_ => _.Label).Distinct().ToList();
@@ -79,13 +82,11 @@ namespace ERNI.PhotoDatabase.Annotator
                 Console.WriteLine(ex.ToString());
             }
 
-            return tags.ToArray();
+            return (tags.ToArray(), bmpWithBoxes.ToByteArray(ImageFormat.Jpeg));
         }
 
-        private static void DrawBoundingBox(string inputImageLocation, string outputImageLocation, string imageName, IList<YoloBoundingBox> filteredBoundingBoxes)
+        private static void DrawBoundingBox(ref Bitmap image, IList<YoloBoundingBox> filteredBoundingBoxes, string outputImageLocation, string imageName)
         {
-            Image image = Image.FromFile(Path.Combine(inputImageLocation, imageName));
-
             var originalImageHeight = image.Height;
             var originalImageWidth = image.Width;
 
