@@ -40,8 +40,13 @@
 
     <script>
         $('.image-toggler').click(function () {
-            $('.image-toggle').hide();
-            $($(this).attr('data-image-id')).show();
+            if ($("#image").is(":visible")) {
+                $("#image").hide();
+                $("#image-tag").show();
+            } else {
+                $("#image").show();
+                $("#image-tag").hide();
+            }
         });
     </script>
 }
