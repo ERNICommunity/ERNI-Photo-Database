@@ -6,7 +6,7 @@ using System.Text;
 
 namespace ERNI.PhotoDatabase.Annotator.YoloParser
 {
-    public class CellDimensions : DimensionsBase { }
+    public class CellDimensions : Dimensions { }
 
     public class YoloOutputParser
     {
@@ -77,7 +77,7 @@ namespace ERNI.PhotoDatabase.Annotator.YoloParser
         private int GetOffset(int x, int y, int channel)
         {
             // YOLO outputs a tensor that has a shape of 125x13x13, which 
-            // WinML flattens into a 1D array.  To access a specific channel 
+            // ML.Net flattens into a 1D array.  To access a specific channel 
             // for a given (x,y) cell position, we need to calculate an offset
             // into the array
             return (channel * this.channelStride) + (y * COL_COUNT) + x;

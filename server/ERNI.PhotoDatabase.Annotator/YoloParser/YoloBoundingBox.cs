@@ -2,7 +2,7 @@
 
 namespace ERNI.PhotoDatabase.Annotator.YoloParser
 {
-    public class BoundingBoxDimensions : DimensionsBase { }
+    public class BoundingBoxDimensions : Dimensions { }
 
     public class YoloBoundingBox
     {

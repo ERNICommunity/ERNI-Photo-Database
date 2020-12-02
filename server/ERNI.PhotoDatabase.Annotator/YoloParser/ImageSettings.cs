@@ -1,4 +1,4 @@
-﻿namespace ERNI.PhotoDatabase.Annotator
+﻿namespace ERNI.PhotoDatabase.Annotator.YoloParser
 {
     public struct ImageSettings
     {

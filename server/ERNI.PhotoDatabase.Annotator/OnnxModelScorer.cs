@@ -5,28 +5,19 @@ using Microsoft.ML;
 using Microsoft.ML.Data;
 using ERNI.PhotoDatabase.Annotator.DataStructures;
 using ERNI.PhotoDatabase.Annotator.YoloParser;
+using System.Drawing;
 
 namespace ERNI.PhotoDatabase.Annotator
 {
     public class OnnxModelScorer
     {
-        private readonly string imagesFolder;
         private readonly string modelLocation;
         private readonly MLContext mlContext;
 
-        private IList<YoloBoundingBox> _boundingBoxes = new List<YoloBoundingBox>();
-
-        public OnnxModelScorer(string imagesFolder, string modelLocation, MLContext mlContext)
+        public OnnxModelScorer(string modelLocation, MLContext mlContext)
         {
-            this.imagesFolder = imagesFolder;
             this.modelLocation = modelLocation;
             this.mlContext = mlContext;
-        }
-
-        public struct ImageNetSettings
-        {
-            public const int imageHeight = 416;
-            public const int imageWidth = 416;
         }
 
         public struct TinyYoloModelSettings
@@ -40,36 +31,35 @@ namespace ERNI.PhotoDatabase.Annotator
 
         private ITransformer LoadModel(string modelLocation)
         {
-            Console.WriteLine("Read model");
-            Console.WriteLine($"Model location: {modelLocation}");
-            Console.WriteLine($"Default parameters: image size=({ImageNetSettings.imageWidth},{ImageNetSettings.imageHeight})");
+            var data = mlContext.Data.LoadFromEnumerable(new List<InputPicture>());
 
-            var data = mlContext.Data.LoadFromEnumerable(new List<ImageNetData>());
-
-            var pipeline = mlContext.Transforms.LoadImages(outputColumnName: "image", imageFolder: "", inputColumnName: nameof(ImageNetData.ImagePath))
-                .Append(mlContext.Transforms.ResizeImages(outputColumnName: "image", imageWidth: ImageNetSettings.imageWidth, imageHeight: ImageNetSettings.imageHeight, inputColumnName: "image"))
+            var pipeline = mlContext.Transforms.ResizeImages(outputColumnName: "image", 
+                                                            imageWidth: ImageSettings.imageWidth, 
+                                                            imageHeight: ImageSettings.imageHeight, 
+                                                            inputColumnName: nameof(InputPicture.Image))
                 .Append(mlContext.Transforms.ExtractPixels(outputColumnName: "image"))
-                .Append(mlContext.Transforms.ApplyOnnxModel(modelFile: modelLocation, outputColumnNames: new[] { TinyYoloModelSettings.ModelOutput }, inputColumnNames: new[] { TinyYoloModelSettings.ModelInput }));
+                .Append(mlContext.Transforms.ApplyOnnxModel(modelFile: modelLocation, 
+                                                            outputColumnNames: new[] { TinyYoloModelSettings.ModelOutput }, 
+                                                            inputColumnNames: new[] { TinyYoloModelSettings.ModelInput }));
 
             var model = pipeline.Fit(data);
 
             return model;
         }
 
-        private IEnumerable<float[]> PredictDataUsingModel(IDataView testData, ITransformer model)
+        private float[] PredictDataUsingModel(Bitmap picture, ITransformer model)
         {
-            IDataView scoredData = model.Transform(testData);
+            var predictionEngine = mlContext.Model.CreatePredictionEngine<InputPicture, ImageNetPrediction>(model);
+            var prediction = predictionEngine.Predict(new InputPicture { Image = picture });
 
-            IEnumerable<float[]> probabilities = scoredData.GetColumn<float[]>(TinyYoloModelSettings.ModelOutput);
-
-            return probabilities;
+            return prediction.PredictedLabels;
         }
 
-        public IEnumerable<float[]> Score(IDataView data)
+        public float[] Score(Bitmap picture)
         {
             var model = LoadModel(modelLocation);
 
-            return PredictDataUsingModel(data, model);
+            return PredictDataUsingModel(picture, model);
         }
     }
 }

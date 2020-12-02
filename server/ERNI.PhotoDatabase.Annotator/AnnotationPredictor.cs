@@ -14,53 +14,14 @@ namespace ERNI.PhotoDatabase.Annotator
 {
     public class AnnotationPredictor
     {
-        public Dictionary<string, string[]> MakePredictions()
+        public (string[], byte[]) MakePrediction(Bitmap bmp, string fileName)
         {
             MLContext mlContext = new MLContext();
-            Dictionary<string, string[]> imagesTags = new Dictionary<string, string[]>();
-
-            try
-            {
-                IEnumerable<ImageNetData> images = ImageNetData.ReadFromFile(FileUtils.ImagesFolder);
-                IDataView imageDataView = mlContext.Data.LoadFromEnumerable(images);
-
-                var modelScorer = new OnnxModelScorer(FileUtils.ImagesFolder, FileUtils.ModelFilePath, mlContext);
-
-                // Use model to score data
-                IEnumerable<float[]> probabilities = modelScorer.Score(imageDataView);
-
-                YoloOutputParser parser = new YoloOutputParser();
-
-                var boundingBoxes =
-                    probabilities
-                    .Select(probability => parser.ParseOutputs(probability))
-                    .Select(boxes => parser.FilterBoundingBoxes(boxes, 5, .5F));
-
-                for (var i = 0; i < images.Count(); i++)
-                {
-                    string imageFileName = images.ElementAt(i).Label;
-                    IList<YoloBoundingBox> detectedObjects = boundingBoxes.ElementAt(i);
-
-                    imagesTags.Add(imageFileName, detectedObjects.Select(_ => _.Label).ToArray());
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
-
-            return imagesTags;
-        }
-
-        public (string[], byte[]) MakePrediction(Bitmap bmp)
-        {
-            MLContext mlContext = new MLContext();
-            Dictionary<string, string[]> imagesTags = new Dictionary<string, string[]>();
             List<string> tags = new List<string>();
             var bmpWithBoxes = bmp.Clone(new RectangleF(0, 0, bmp.Width, bmp.Height), bmp.PixelFormat);
             try
             {
-                var modelScorer = new OnnxModelScorer2(FileUtils.ImagesFolder, FileUtils.ModelFilePath, mlContext);
+                var modelScorer = new OnnxModelScorer(FileUtils.ModelFilePath, mlContext);
 
                 // Use model to score data
                 float[] probability = modelScorer.Score(bmp);
@@ -70,11 +31,9 @@ namespace ERNI.PhotoDatabase.Annotator
                 var boxes = parser.ParseOutputs(probability);
                 var boundingBoxes = parser.FilterBoundingBoxes(boxes, 5, .5F);
 
-                string imageFileName = "imageName";
                 IList<YoloBoundingBox> detectedObjects = boundingBoxes;
-                DrawBoundingBox(ref bmpWithBoxes, detectedObjects, FileUtils.OutputFolder, "annImage");
+                DrawBoundingBox(ref bmpWithBoxes, detectedObjects, FileUtils.OutputFolder, fileName);
 
-                imagesTags.Add(imageFileName, detectedObjects.Select(_ => _.Label).ToArray());
                 tags = detectedObjects.Select(_ => _.Label).Distinct().ToList();
             }
             catch (Exception ex)
@@ -85,7 +44,10 @@ namespace ERNI.PhotoDatabase.Annotator
             return (tags.ToArray(), bmpWithBoxes.ToByteArray(ImageFormat.Jpeg));
         }
 
-        private static void DrawBoundingBox(ref Bitmap image, IList<YoloBoundingBox> filteredBoundingBoxes, string outputImageLocation, string imageName)
+        private static void DrawBoundingBox(ref Bitmap image, 
+                                            IList<YoloBoundingBox> filteredBoundingBoxes, 
+                                            string outputImageLocation, 
+                                            string imageName)
         {
             var originalImageHeight = image.Height;
             var originalImageWidth = image.Width;
@@ -97,12 +59,12 @@ namespace ERNI.PhotoDatabase.Annotator
                 var width = (uint)Math.Min(originalImageWidth - x, box.Dimensions.Width);
                 var height = (uint)Math.Min(originalImageHeight - y, box.Dimensions.Height);
 
-                x = (uint)originalImageWidth * x / OnnxModelScorer.ImageNetSettings.imageWidth;
-                y = (uint)originalImageHeight * y / OnnxModelScorer.ImageNetSettings.imageHeight;
-                width = (uint)originalImageWidth * width / OnnxModelScorer.ImageNetSettings.imageWidth;
-                height = (uint)originalImageHeight * height / OnnxModelScorer.ImageNetSettings.imageHeight;
+                x = (uint)originalImageWidth * x / ImageSettings.imageWidth;
+                y = (uint)originalImageHeight * y / ImageSettings.imageHeight;
+                width = (uint)originalImageWidth * width / ImageSettings.imageWidth;
+                height = (uint)originalImageHeight * height / ImageSettings.imageHeight;
 
-                string text = $"{box.Label} ({(box.Confidence * 100).ToString("0")}%)";
+                string text = $"{box.Label} ({box.Confidence * 100:0}%)";
 
                 using (Graphics thumbnailGraphic = Graphics.FromImage(image))
                 {
@@ -135,18 +97,6 @@ namespace ERNI.PhotoDatabase.Annotator
                     image.Save(Path.Combine(outputImageLocation, imageName));
                 }
             }
-        }
-
-        private static void LogDetectedObjects(string imageName, IList<YoloBoundingBox> boundingBoxes)
-        {
-            Console.WriteLine($".....The objects in the image {imageName} are detected as below....");
-
-            foreach (var box in boundingBoxes)
-            {
-                Console.WriteLine($"{box.Label} and its Confidence score: {box.Confidence}");
-            }
-
-            Console.WriteLine("");
         }
     }
 }

@@ -97,7 +97,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
         }
 
         [HttpGet("{id}/thumbnail")]
-        public async Task<IActionResult> Thumbnail(int id, CancellationToken cancellationToken)
+        public async Task<IActionResult> Thumbnail(int id, CancellationToken cancellationToken, bool withOverlay = false)
         {
             var photo = await this.Repository.GetPhoto(id, cancellationToken);
 
@@ -105,9 +105,9 @@ namespace ERNI.PhotoDatabase.Server.Controllers
             {
                 return NotFound();
             }
-
-            var image = await this.ImageStore.GetImageBlobAsync(photo.ThumbnailImageId, cancellationToken);
-            
+            var image = withOverlay 
+                ? await ImageStore.GetImageBlobAsync(photo.TaggedThumbnailImageId, cancellationToken)
+                : await ImageStore.GetImageBlobAsync(photo.ThumbnailImageId, cancellationToken);
             return File(image.Content, "image/jpeg");
         }
         
@@ -122,6 +122,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
         // GET api/values
         /// <summary>
         /// Uploads the specified files.
+        /// Runs automatic tagging for photo.
         /// </summary>
         /// <param name="files">The files.</param>
         /// <returns></returns>
@@ -141,31 +142,38 @@ namespace ERNI.PhotoDatabase.Server.Controllers
                     var thumbnailData = ImageTools.ResizeTo(data, this.settings.Value.Thumbnail);
                     var (width, height) = ImageTools.GetSize(data);
 
+                    (string[] tags, byte[] taggedPhotoData) = PhotoAnnotator.AnnotatePhoto(thumbnailData, formFile.FileName);
+
                     var fullSizeBlob = new ImageBlob {Content = data, Id = Guid.NewGuid()};
                     var thumbnailBlob = new ImageBlob {Content = thumbnailData, Id = Guid.NewGuid()};
+                    var taggedThumbnailBlob = new ImageBlob { Content = taggedPhotoData, Id = Guid.NewGuid() };
                     await ImageStore.SaveImageBlobAsync(fullSizeBlob, cancellationToken);
                     await ImageStore.SaveImageBlobAsync(thumbnailBlob, cancellationToken);
+                    await ImageStore.SaveImageBlobAsync(taggedThumbnailBlob, cancellationToken);
 
-                    var tags = PhotoAnnotator.AnnotatePhoto(data);
-
-                    var photo = Repository.StorePhoto(formFile.FileName, fullSizeBlob.Id, thumbnailBlob.Id, formFile.ContentType, width, height);
+                    var photo = Repository.StorePhoto(formFile.FileName, fullSizeBlob.Id, thumbnailBlob.Id, taggedThumbnailBlob.Id, formFile.ContentType, width, height);
 
                     taggedPhotos.Add(photo, tags);
                 }
             }
 
-            await this.UnitOfWork.SaveChanges(cancellationToken);
-            using (var t = await this.UnitOfWork.BeginTransaction(cancellationToken))
+            await UnitOfWork.SaveChanges(cancellationToken);
+            await SaveTags(taggedPhotos, cancellationToken);
+
+            return RedirectToAction("Index", "Tag", new {fileIds = taggedPhotos.Select(_ => _.Key.Id).ToList()});
+        }
+
+        private async Task SaveTags(Dictionary<Photo, string[]> taggedPhotos, CancellationToken cancellationToken)
+        {
+            using (var t = await UnitOfWork.BeginTransaction(cancellationToken))
             {
                 foreach (var tag in taggedPhotos)
                 {
                     await TagRepository.SetTagsForImage(tag.Key.Id, tag.Value, cancellationToken);
-                    await this.UnitOfWork.SaveChanges(cancellationToken);
+                    await UnitOfWork.SaveChanges(cancellationToken);
                 }
                 t.Commit();
             }
-
-            return RedirectToAction("Index", "Tag", new {fileIds = taggedPhotos.Select(_ => _.Key.Id).ToList()});
         }
 
         // DELETE api/values

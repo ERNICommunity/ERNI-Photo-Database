@@ -1,11 +1,9 @@
 ﻿@using ERNI.PhotoDatabase.Server.Controllers
 @model ERNI.PhotoDatabase.Server.Model.UploadResult
 
-@{
-    Layout = "_Layout";
+@{ Layout = "_Layout";
 
-    var returnAction = Model.Images.Length == 1 ? nameof(TagController.SaveOne) : nameof(TagController.Save);
-}
+                var returnAction = Model.Images.Length == 1 ? nameof(TagController.SaveOne) : nameof(TagController.Save); }
 
 <div class="container">
     <form asp-controller="Tag" asp-action="@returnAction" method="post" asp-antiforgery="false">
@@ -17,8 +15,7 @@
 
         @for (var i = 0; i < Model.Images.Length; ++i)
         {
-            @Html.EditorFor(m => m.Images[i])
-        }
+@Html.EditorFor(m => m.Images[i])}
 
         <div class="row save-button-row">
             <div class="col">
@@ -41,4 +38,10 @@
         initializeTagging('@Url.Action("GetTags")');
     </script>
 
+    <script>
+        $('.image-toggler').click(function () {
+            $('.image-toggle').hide();
+            $($(this).attr('data-image-id')).show();
+        });
+    </script>
 }

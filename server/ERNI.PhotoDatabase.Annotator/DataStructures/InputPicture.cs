@@ -1,4 +1,5 @@
-﻿using Microsoft.ML.Transforms.Image;
+﻿using ERNI.PhotoDatabase.Annotator.YoloParser;
+using Microsoft.ML.Transforms.Image;
 using System.Drawing;
 
 namespace ERNI.PhotoDatabase.Annotator.DataStructures
