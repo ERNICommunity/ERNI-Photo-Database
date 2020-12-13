@@ -2,11 +2,9 @@
 
 namespace ERNI.PhotoDatabase.Annotator.YoloParser
 {
-    public class BoundingBoxDimensions : Dimensions { }
-
     public class YoloBoundingBox
     {
-        public BoundingBoxDimensions Dimensions { get; set; }
+        public Dimensions Dimensions { get; set; }
 
         public string Label { get; set; }
 
@@ -14,7 +12,7 @@ namespace ERNI.PhotoDatabase.Annotator.YoloParser
 
         public RectangleF Rect
         {
-            get { return new RectangleF(Dimensions.X, Dimensions.Y, Dimensions.Width, Dimensions.Height); }
+            get { return new RectangleF(Dimensions.X1, Dimensions.Y1, Dimensions.Width, Dimensions.Height); }
         }
 
         public Color BoxColor { get; set; }

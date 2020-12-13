@@ -33,11 +33,15 @@
                     </a>
                 }
 
-                <div class="btn-group" data-toggle="buttons">
-                    <label class="btn btn-primary image-toggler" data-image-id="#image">
-                        <input type="hidden" name="options" id="option1"> Toggle annotation
-                    </label>
-                </div>
+                
+                @if (Model.HasAnnotationLayer)
+                {
+                    <div class="btn-group" data-toggle="buttons">
+                        <label class="btn btn-primary image-toggler" data-image-id="#image">
+                            <input type="hidden" name="options" id="option1"> Toggle annotation
+                        </label>
+                    </div>
+                }
             </div>
         </div>
     </div>

@@ -66,7 +66,7 @@ namespace ERNI.PhotoDatabase.Server
                             UniqueIdentifier = sub,
                             FirstName = context.Principal.Claims.Single(c => c.Type == "given_name").Value,
                             LastName = context.Principal.Claims.Single(c => c.Type == "family_name").Value,
-                            Username = string.Empty
+                            Username = context.Principal.Claims.Single(c => c.Type == "upn").Value
                         };
                         db.Users.Add(user);
                         db.SaveChanges();

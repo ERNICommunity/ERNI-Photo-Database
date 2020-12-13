@@ -15,4 +15,13 @@
     <ProjectReference Include="..\ERNI.PhotoDatabase.DataAccess\ERNI.PhotoDatabase.DataAccess.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="assets\Model\TinyYolo2_model.onnx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="assets\Model\yolov4.onnx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

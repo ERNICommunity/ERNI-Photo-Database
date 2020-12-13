@@ -6,9 +6,7 @@ namespace ERNI.PhotoDatabase.Annotator.Utils
     {
         public static string AssetsRelativePath = @"../../../../ERNI.PhotoDatabase.Annotator/assets";
         public static string AssetsPath = GetAbsolutePath(AssetsRelativePath);
-        public static string ModelFilePath = Path.Combine(AssetsPath, "Model", "TinyYolo2_model.onnx");
-        public static string ImagesFolder = Path.Combine(AssetsPath, "images");
-        public static string OutputFolder = Path.Combine(AssetsPath, "images", "output");
+        public static string ModelFilePath = Path.Combine(AssetsPath, "Model", "yolov4.onnx");
 
         public static string GetAbsolutePath(string relativePath)
         {

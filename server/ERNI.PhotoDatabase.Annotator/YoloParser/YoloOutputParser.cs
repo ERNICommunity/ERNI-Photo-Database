@@ -1,38 +1,39 @@
-﻿using System;
+﻿using ERNI.PhotoDatabase.Annotator.DataStructures;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Text;
 
 namespace ERNI.PhotoDatabase.Annotator.YoloParser
 {
-    public class CellDimensions : Dimensions { }
-
     public class YoloOutputParser
     {
-        public const int ROW_COUNT = 13;
-        public const int COL_COUNT = 13;
-        public const int CHANNEL_COUNT = 125;
-        public const int BOXES_PER_CELL = 5;
-        public const int BOX_INFO_FEATURE_COUNT = 5;
-        public const int CLASS_COUNT = 20;
-        public const float CELL_WIDTH = 32;
-        public const float CELL_HEIGHT = 32;
-
-        private int channelStride = ROW_COUNT * COL_COUNT;
-
-        private float[] anchors = new float[]
+        // https://github.com/hunglc007/tensorflow-yolov4-tflite/blob/master/data/anchors/yolov4_anchors.txt
+        static readonly float[][][] ANCHORS = new float[][][]
         {
-            1.08F, 1.19F, 3.42F, 4.41F, 6.63F, 11.38F, 9.42F, 5.11F, 16.62F, 10.52F
+            new float[][] { new float[] { 12, 16 }, new float[] { 19, 36 }, new float[] { 40, 28 } },
+            new float[][] { new float[] { 36, 75 }, new float[] { 76, 55 }, new float[] { 72, 146 } },
+            new float[][] { new float[] { 142, 110 }, new float[] { 192, 243 }, new float[] { 459, 401 } }
         };
+        static readonly float[] STRIDES = new float[] { 8, 16, 32 };
+        static readonly float[] XYSCALE = new float[] { 1.2f, 1.1f, 1.05f };
+        static readonly int[] shapes = new int[] { 52, 26, 13 };
+        const int anchorsCount = 3;
 
-        private string[] labels = new string[]
-        {
-            "aeroplane", "bicycle", "bird", "boat", "bottle",
-            "bus", "car", "cat", "chair", "cow",
-            "diningtable", "dog", "horse", "motorbike", "person",
-            "pottedplant", "sheep", "sofa", "train", "tvmonitor"
-        };
+        private string[] labels = new string[] {
+            "person", "bicycle", "car", "motorbike", "aeroplane", "bus", "train",
+            "truck", "boat", "traffic light", "fire hydrant", "stop sign",
+            "parking meter", "bench", "bird", "cat", "dog", "horse", "sheep",
+            "cow", "elephant", "bear", "zebra", "giraffe", "backpack", "umbrella",
+            "handbag", "tie", "suitcase", "frisbee", "skis", "snowboard",
+            "sports ball", "kite", "baseball bat", "baseball glove", "skateboard",
+            "surfboard", "tennis racket", "bottle", "wine glass", "cup", "fork",
+            "knife", "spoon", "bowl", "banana", "apple", "sandwich", "orange",
+            "broccoli", "carrot", "hot dog", "pizza", "donut", "cake", "chair",
+            "sofa", "pottedplant", "bed", "diningtable", "toilet", "tvmonitor",
+            "laptop", "mouse", "remote", "keyboard", "cell phone", "microwave",
+            "oven", "toaster", "sink", "refrigerator", "book", "clock", "vase",
+            "scissors", "teddy bear", "hair drier", "toothbrush" };
 
         private static Color[] classColors = new Color[]
         {
@@ -59,86 +60,60 @@ namespace ERNI.PhotoDatabase.Annotator.YoloParser
             Color.DarkTurquoise
         };
 
-        private float Sigmoid(float value)
+        private Dimensions ExtractBoundingBoxDimensions(float[] offsetModelOutput, int row, int column, float xyScale, float stride, float[] anchor)
         {
-            var k = (float)Math.Exp(value);
-            return k / (1.0f + k);
-        }
+            var rawDx = offsetModelOutput[0];
+            var rawDy = offsetModelOutput[1];
+            var rawDw = offsetModelOutput[2];
+            var rawDh = offsetModelOutput[3];
 
-        private float[] Softmax(float[] values)
-        {
-            var maxVal = values.Max();
-            var exp = values.Select(v => Math.Exp(v - maxVal));
-            var sumExp = exp.Sum();
+            float predX = ((Sigmoid(rawDx) * xyScale) - 0.5f * (xyScale - 1) + row) * stride;
+            float predY = ((Sigmoid(rawDy) * xyScale) - 0.5f * (xyScale - 1) + column) * stride;
+            float predW = (float)Math.Exp(rawDw) * anchor[0];
+            float predH = (float)Math.Exp(rawDh) * anchor[1];
 
-            return exp.Select(v => (float)(v / sumExp)).ToArray();
-        }
+            // postprocess_boxes
+            // (1) (x, y, w, h) --> (xmin, ymin, xmax, ymax)
+            float predX1 = predX - predW * 0.5f;
+            float predY1 = predY - predH * 0.5f;
+            float predX2 = predX + predW * 0.5f;
+            float predY2 = predY + predH * 0.5f;
 
-        private int GetOffset(int x, int y, int channel)
-        {
-            // YOLO outputs a tensor that has a shape of 125x13x13, which 
-            // ML.Net flattens into a 1D array.  To access a specific channel 
-            // for a given (x,y) cell position, we need to calculate an offset
-            // into the array
-            return (channel * this.channelStride) + (y * COL_COUNT) + x;
-        }
+            // (2) (xmin, ymin, xmax, ymax) -> (xmin_org, ymin_org, xmax_org, ymax_org)
+            float org_h = Yolov4ModelSettings.ImageSettings.imageHeight;
+            float org_w = Yolov4ModelSettings.ImageSettings.imageWidth;
 
-        private BoundingBoxDimensions ExtractBoundingBoxDimensions(float[] modelOutput, int x, int y, int channel)
-        {
-            return new BoundingBoxDimensions
+            float inputSize = 416f;
+            float resizeRatio = Math.Min(inputSize / org_w, inputSize / org_h);
+            float dw = (inputSize - resizeRatio * org_w) / 2f;
+            float dh = (inputSize - resizeRatio * org_h) / 2f;
+
+            var orgX1 = 1f * (predX1 - dw) / resizeRatio; // left
+            var orgX2 = 1f * (predX2 - dw) / resizeRatio; // right
+            var orgY1 = 1f * (predY1 - dh) / resizeRatio; // top
+            var orgY2 = 1f * (predY2 - dh) / resizeRatio; // bottom
+
+            // (3) clip some boxes that are out of range
+            orgX1 = Math.Max(orgX1, 0);
+            orgY1 = Math.Max(orgY1, 0);
+            orgX2 = Math.Min(orgX2, org_w - 1);
+            orgY2 = Math.Min(orgY2, org_h - 1);
+
+            return new Dimensions
             {
-                X = modelOutput[GetOffset(x, y, channel)],
-                Y = modelOutput[GetOffset(x, y, channel + 1)],
-                Width = modelOutput[GetOffset(x, y, channel + 2)],
-                Height = modelOutput[GetOffset(x, y, channel + 3)]
+                X1 = orgX1,
+                X2 = orgX2,
+                Y1 = orgY1,
+                Y2 = orgY2
             };
-        }
-
-        private float GetConfidence(float[] modelOutput, int x, int y, int channel)
-        {
-            return Sigmoid(modelOutput[GetOffset(x, y, channel + 4)]);
-        }
-
-        private CellDimensions MapBoundingBoxToCell(int x, int y, int box, BoundingBoxDimensions boxDimensions)
-        {
-            return new CellDimensions
-            {
-                X = ((float)x + Sigmoid(boxDimensions.X)) * CELL_WIDTH,
-                Y = ((float)y + Sigmoid(boxDimensions.Y)) * CELL_HEIGHT,
-                Width = (float)Math.Exp(boxDimensions.Width) * CELL_WIDTH * anchors[box * 2],
-                Height = (float)Math.Exp(boxDimensions.Height) * CELL_HEIGHT * anchors[box * 2 + 1],
-            };
-        }
-
-        public float[] ExtractClasses(float[] modelOutput, int x, int y, int channel)
-        {
-            float[] predictedClasses = new float[CLASS_COUNT];
-            int predictedClassOffset = channel + BOX_INFO_FEATURE_COUNT;
-            for (int predictedClass = 0; predictedClass < CLASS_COUNT; predictedClass++)
-            {
-                predictedClasses[predictedClass] = modelOutput[GetOffset(x, y, predictedClass + predictedClassOffset)];
-            }
-            return Softmax(predictedClasses);
-        }
-
-        private ValueTuple<int, float> GetTopResult(float[] predictedClasses)
-        {
-            return predictedClasses
-                .Select((predictedClass, index) => (Index: index, Value: predictedClass))
-                .OrderByDescending(result => result.Value)
-                .First();
         }
 
         private float IntersectionOverUnion(RectangleF boundingBoxA, RectangleF boundingBoxB)
         {
             var areaA = boundingBoxA.Width * boundingBoxA.Height;
-
-            if (areaA <= 0)
-                return 0;
-
             var areaB = boundingBoxB.Width * boundingBoxB.Height;
 
-            if (areaB <= 0)
+            if (areaA <= 0 || areaB <= 0)
                 return 0;
 
             var minX = Math.Max(boundingBoxA.Left, boundingBoxB.Left);
@@ -151,53 +126,69 @@ namespace ERNI.PhotoDatabase.Annotator.YoloParser
             return intersectionArea / (areaA + areaB - intersectionArea);
         }
 
-        public IList<YoloBoundingBox> ParseOutputs(float[] yoloModelOutputs, float threshold = .3F)
+        public IList<YoloBoundingBox> ParseOutputs(ImageNetPrediction prediction, float threshold = .3F)
         {
+            // ported from https://github.com/onnx/models/tree/master/vision/object_detection_segmentation/yolov4#postprocessing-steps
+            List<float[]> postProcesssedResults = new List<float[]>();
+            int classesCount = labels.Length;
+            // YOLOv4 outputs from 3 different levels (different object scales) 
+            var results = new[] { prediction.Output_1, prediction.Output_2, prediction.Output_3 };
+
             var boxes = new List<YoloBoundingBox>();
-
-            for (int row = 0; row < ROW_COUNT; row++)
+            for (int i = 0; i < results.Length; i++)
             {
-                for (int column = 0; column < COL_COUNT; column++)
+                var result = results[i];
+                var outputSize = shapes[i];
+
+                for (int boxY = 0; boxY < outputSize; boxY++)
                 {
-                    for (int box = 0; box < BOXES_PER_CELL; box++)
+                    for (int boxX = 0; boxX < outputSize; boxX++)
                     {
-                        var channel = (box * (CLASS_COUNT + BOX_INFO_FEATURE_COUNT));
-                        BoundingBoxDimensions boundingBoxDimensions = ExtractBoundingBoxDimensions(yoloModelOutputs, row, column, channel);
-
-                        float confidence = GetConfidence(yoloModelOutputs, row, column, channel);
-                        CellDimensions mappedBoundingBox = MapBoundingBoxToCell(row, column, box, boundingBoxDimensions);
-
-                        if (confidence < threshold)
-                            continue;
-
-                        float[] predictedClasses = ExtractClasses(yoloModelOutputs, row, column, channel);
-                        var (topResultIndex, topResultScore) = GetTopResult(predictedClasses);
-                        var topScore = topResultScore * confidence;
-
-                        if (topScore < threshold)
-                            continue;
-
-                        boxes.Add(new YoloBoundingBox()
+                        for (int a = 0; a < anchorsCount; a++)
                         {
-                            Dimensions = new BoundingBoxDimensions
+                            var offset = (boxY * outputSize * (classesCount + 5) * anchorsCount)
+                                        + (boxX * (classesCount + 5) * anchorsCount)
+                                        + a * (classesCount + 5);
+                            var offsetPredictions = result.Skip(offset).Take(classesCount + 5).ToArray();
+
+                            var confidence = offsetPredictions[4];
+                            var predClasses = offsetPredictions.Skip(5).ToArray();
+                            var boundingBox = ExtractBoundingBoxDimensions(offsetPredictions, boxX, boxY,
+                                XYSCALE[i], STRIDES[i],
+                                ANCHORS[i][a]);
+                            if (boundingBox.X1 > boundingBox.X2
+                                || boundingBox.Y1 > boundingBox.Y2)
                             {
-                                X = (mappedBoundingBox.X - mappedBoundingBox.Width / 2),
-                                Y = (mappedBoundingBox.Y - mappedBoundingBox.Height / 2),
-                                Width = mappedBoundingBox.Width,
-                                Height = mappedBoundingBox.Height,
-                            },
-                            Confidence = topScore,
-                            Label = labels[topResultIndex],
-                            BoxColor = classColors[topResultIndex]
-                        });
+                                continue;
+                            }
+
+                            var scores = predClasses.Select(p => p * confidence).ToList();
+                            float topScore = scores.Max();
+                            if (topScore < threshold)
+                                continue;
+
+                            boxes.Add(new YoloBoundingBox()
+                            {
+                                Dimensions = boundingBox,
+                                Confidence = topScore,
+                                Label = labels[scores.IndexOf(topScore)],
+                                BoxColor = classColors[scores.IndexOf(topScore) % (classColors.Length - 1)]
+                            });
+                        }
                     }
                 }
             }
 
             return boxes;
         }
+        
+        private float Sigmoid(float value)
+        {
+            var k = (float)Math.Exp(value);
+            return k / (1.0f + k);
+        }
 
-        public IList<YoloBoundingBox> FilterBoundingBoxes(IList<YoloBoundingBox> boxes, int limit, float threshold)
+        public IList<YoloBoundingBox> NonMaxSuppression(IList<YoloBoundingBox> boxes, int limit, float threshold)
         {
             var activeCount = boxes.Count;
             var isActiveBoxes = new bool[boxes.Count];

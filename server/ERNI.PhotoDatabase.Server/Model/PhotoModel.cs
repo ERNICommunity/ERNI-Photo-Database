@@ -15,6 +15,8 @@
         public string DetailUrl { get; set; }
 
         public string ThumbnailUrl { get; set; }
+
+        public bool HasAnnotationLayer { get; set; }
         
         public string TaggedThumbnailUrl { get; set; }
     }

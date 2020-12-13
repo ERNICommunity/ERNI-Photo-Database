@@ -1,12 +1,10 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using Microsoft.ML;
 using ERNI.PhotoDatabase.Annotator.YoloParser;
-using ERNI.PhotoDatabase.Annotator.DataStructures;
 using ERNI.PhotoDatabase.Annotator.Utils;
 using System.Drawing.Imaging;
 
@@ -22,16 +20,12 @@ namespace ERNI.PhotoDatabase.Annotator
             try
             {
                 var modelScorer = new OnnxModelScorer(FileUtils.ModelFilePath, mlContext);
-
-                // Use model to score data
-                float[] probability = modelScorer.Score(bmp);
+                var prediction = modelScorer.Score(bmp);
 
                 YoloOutputParser parser = new YoloOutputParser();
+                var boxes = parser.ParseOutputs(prediction);
 
-                var boxes = parser.ParseOutputs(probability);
-                var boundingBoxes = parser.FilterBoundingBoxes(boxes, 5, .5F);
-
-                IList<YoloBoundingBox> detectedObjects = boundingBoxes;
+                IList<YoloBoundingBox> detectedObjects = parser.NonMaxSuppression(boxes, 10, .5F); ;
                 DrawBoundingBox(ref bmpWithBoxes, detectedObjects);
 
                 tags = detectedObjects.Select(_ => _.Label).Distinct().ToList();
@@ -52,15 +46,15 @@ namespace ERNI.PhotoDatabase.Annotator
 
             foreach (var box in filteredBoundingBoxes)
             {
-                var x = (uint)Math.Max(box.Dimensions.X, 0);
-                var y = (uint)Math.Max(box.Dimensions.Y, 0);
+                var x = (uint)Math.Max(box.Dimensions.X1, 0);
+                var y = (uint)Math.Max(box.Dimensions.Y1, 0);
                 var width = (uint)Math.Min(originalImageWidth - x, box.Dimensions.Width);
                 var height = (uint)Math.Min(originalImageHeight - y, box.Dimensions.Height);
 
-                x = (uint)originalImageWidth * x / ImageSettings.imageWidth;
-                y = (uint)originalImageHeight * y / ImageSettings.imageHeight;
-                width = (uint)originalImageWidth * width / ImageSettings.imageWidth;
-                height = (uint)originalImageHeight * height / ImageSettings.imageHeight;
+                x = (uint)originalImageWidth * x / Yolov4ModelSettings.ImageSettings.imageWidth;
+                y = (uint)originalImageHeight * y / Yolov4ModelSettings.ImageSettings.imageHeight;
+                width = (uint)originalImageWidth * width / Yolov4ModelSettings.ImageSettings.imageWidth;
+                height = (uint)originalImageHeight * height / Yolov4ModelSettings.ImageSettings.imageHeight;
 
                 string text = $"{box.Label} ({box.Confidence * 100:0}%)";
 
