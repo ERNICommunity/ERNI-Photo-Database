@@ -195,6 +195,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
 
             await ImageStore.DeleteImageBlobAsync(photo.FullSizeImageId, cancellationToken);
             await ImageStore.DeleteImageBlobAsync(photo.ThumbnailImageId, cancellationToken);
+            await ImageStore.DeleteImageBlobAsync(photo.TaggedThumbnailImageId, cancellationToken);
 
             Repository.DeletePhoto(photo);
 
