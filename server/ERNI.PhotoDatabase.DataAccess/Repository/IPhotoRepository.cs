@@ -18,7 +18,7 @@ namespace ERNI.PhotoDatabase.DataAccess.Repository
 
         Task<Photo> GetPhoto(int id, CancellationToken cancellationToken);
 
-        Photo StorePhoto(string fileName, Guid fullSizeBlobId, Guid thumbnailBlobId, string mime, int width, int height);
+        Photo StorePhoto(string fileName, Guid fullSizeBlobId, Guid thumbnailBlobId, Guid taggedThumbnailBlobId, string mime, int width, int height);
 
         void DeletePhoto(Photo photo);
 

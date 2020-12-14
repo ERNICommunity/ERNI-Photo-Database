@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using ERNI.PhotoDatabase.Annotator;
 using ERNI.PhotoDatabase.DataAccess;
 using ERNI.PhotoDatabase.Server.Utils.Image;
 
@@ -11,6 +12,8 @@ namespace ERNI.PhotoDatabase.Server
             builder.RegisterModule<DataAccessModule>();
 
             builder.RegisterType<ImageManipulation>().AsImplementedInterfaces();
+
+            builder.RegisterType<PhotoAnnotator>().InstancePerLifetimeScope();
         }
     }
 }

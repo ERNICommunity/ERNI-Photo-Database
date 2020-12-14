@@ -12,6 +12,8 @@ namespace ERNI.PhotoDatabase.DataAccess.DomainModel
         public Guid FullSizeImageId { get; set; }
 
         public Guid ThumbnailImageId { get; set; }
+        
+        public Guid TaggedThumbnailImageId { get; set; }
 
         public List<PhotoTag> PhotoTags { get; set; }
 

@@ -10,6 +10,7 @@ using ERNI.PhotoDatabase.DataAccess.Repository;
 using ERNI.PhotoDatabase.DataAccess.UnitOfWork;
 using ERNI.PhotoDatabase.Server.Configuration;
 using ERNI.PhotoDatabase.Server.Utils.Image;
+using ERNI.PhotoDatabase.Annotator;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Authorization;
@@ -22,27 +23,41 @@ namespace ERNI.PhotoDatabase.Server.Controllers
     public class PhotoController : Controller
     {
         private readonly Lazy<IPhotoRepository> repository;
+        private readonly Lazy<ITagRepository> tagRepository;
         private readonly Lazy<ImageStore> imageStore;
         private readonly Lazy<IUnitOfWork> unitOfWork;
         private readonly Lazy<IImageManipulation> imageTools;
+        private readonly Lazy<PhotoAnnotator> photoAnnotator;
         private readonly IOptions<ImageSizesSettings> settings;
 
-        public PhotoController(Lazy<IPhotoRepository> repository, Lazy<ImageStore> imageStore, Lazy<IUnitOfWork> unitOfWork, Lazy<IImageManipulation> imageTools, IOptions<ImageSizesSettings> settings)
+        public PhotoController(Lazy<IPhotoRepository> repository,
+            Lazy<ITagRepository> tagRepository,
+            Lazy<ImageStore> imageStore, 
+            Lazy<IUnitOfWork> unitOfWork, 
+            Lazy<IImageManipulation> imageTools, 
+            IOptions<ImageSizesSettings> settings,
+            Lazy<PhotoAnnotator> photoAnnotator)
         {
             this.repository = repository;
+            this.tagRepository = tagRepository;
             this.imageStore = imageStore;
             this.unitOfWork = unitOfWork;
             this.imageTools = imageTools;
             this.settings = settings;
+            this.photoAnnotator = photoAnnotator;
         }
 
         private IPhotoRepository Repository => repository.Value;
+
+        private ITagRepository TagRepository => tagRepository.Value;
 
         private ImageStore ImageStore => imageStore.Value;
 
         private IUnitOfWork UnitOfWork => unitOfWork.Value;
 
         private IImageManipulation ImageTools => imageTools.Value;
+
+        private PhotoAnnotator PhotoAnnotator => photoAnnotator.Value;
 
         [HttpGet]
         public async Task<IActionResult> Get(CancellationToken cancellationToken)
@@ -82,7 +97,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
         }
 
         [HttpGet("{id}/thumbnail")]
-        public async Task<IActionResult> Thumbnail(int id, CancellationToken cancellationToken)
+        public async Task<IActionResult> Thumbnail(int id, CancellationToken cancellationToken, bool withOverlay = false)
         {
             var photo = await this.Repository.GetPhoto(id, cancellationToken);
 
@@ -90,9 +105,9 @@ namespace ERNI.PhotoDatabase.Server.Controllers
             {
                 return NotFound();
             }
-
-            var image = await this.ImageStore.GetImageBlobAsync(photo.ThumbnailImageId, cancellationToken);
-            
+            var image = withOverlay 
+                ? await ImageStore.GetImageBlobAsync(photo.TaggedThumbnailImageId, cancellationToken)
+                : await ImageStore.GetImageBlobAsync(photo.ThumbnailImageId, cancellationToken);
             return File(image.Content, "image/jpeg");
         }
         
@@ -107,6 +122,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
         // GET api/values
         /// <summary>
         /// Uploads the specified files.
+        /// Runs automatic tagging for photo.
         /// </summary>
         /// <param name="files">The files.</param>
         /// <returns></returns>
@@ -114,7 +130,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
         [Authorize(Roles = "uploader")]
         public async Task<IActionResult> Upload(List<IFormFile> files, CancellationToken cancellationToken)
         {
-            var photos = new List<Photo>();
+            Dictionary<Photo, string[]> taggedPhotos = new Dictionary<Photo, string[]>();
 
             foreach (var formFile in files)
             {
@@ -126,20 +142,38 @@ namespace ERNI.PhotoDatabase.Server.Controllers
                     var thumbnailData = ImageTools.ResizeTo(data, this.settings.Value.Thumbnail);
                     var (width, height) = ImageTools.GetSize(data);
 
+                    (string[] tags, byte[] taggedPhotoData) = PhotoAnnotator.AnnotatePhoto(thumbnailData);
+
                     var fullSizeBlob = new ImageBlob {Content = data, Id = Guid.NewGuid()};
                     var thumbnailBlob = new ImageBlob {Content = thumbnailData, Id = Guid.NewGuid()};
+                    var taggedThumbnailBlob = new ImageBlob { Content = taggedPhotoData, Id = Guid.NewGuid() };
                     await ImageStore.SaveImageBlobAsync(fullSizeBlob, cancellationToken);
                     await ImageStore.SaveImageBlobAsync(thumbnailBlob, cancellationToken);
+                    await ImageStore.SaveImageBlobAsync(taggedThumbnailBlob, cancellationToken);
 
-                    var photo = Repository.StorePhoto(formFile.FileName, fullSizeBlob.Id, thumbnailBlob.Id, formFile.ContentType, width, height);
+                    var photo = Repository.StorePhoto(formFile.FileName, fullSizeBlob.Id, thumbnailBlob.Id, taggedThumbnailBlob.Id, formFile.ContentType, width, height);
 
-                    photos.Add(photo);
+                    taggedPhotos.Add(photo, tags);
                 }
             }
 
-            await this.UnitOfWork.SaveChanges(cancellationToken);
+            await UnitOfWork.SaveChanges(cancellationToken);
+            await SaveTags(taggedPhotos, cancellationToken);
 
-            return RedirectToAction("Index", "Tag", new {fileIds = photos.Select(_ => _.Id).ToList()});
+            return RedirectToAction("Index", "Tag", new {fileIds = taggedPhotos.Select(_ => _.Key.Id).ToList()});
+        }
+
+        private async Task SaveTags(Dictionary<Photo, string[]> taggedPhotos, CancellationToken cancellationToken)
+        {
+            using (var t = await UnitOfWork.BeginTransaction(cancellationToken))
+            {
+                foreach (var tag in taggedPhotos)
+                {
+                    await TagRepository.SetTagsForImage(tag.Key.Id, tag.Value, cancellationToken);
+                    await UnitOfWork.SaveChanges(cancellationToken);
+                }
+                t.Commit();
+            }
         }
 
         // DELETE api/values
@@ -161,6 +195,7 @@ namespace ERNI.PhotoDatabase.Server.Controllers
 
             await ImageStore.DeleteImageBlobAsync(photo.FullSizeImageId, cancellationToken);
             await ImageStore.DeleteImageBlobAsync(photo.ThumbnailImageId, cancellationToken);
+            await ImageStore.DeleteImageBlobAsync(photo.TaggedThumbnailImageId, cancellationToken);
 
             Repository.DeletePhoto(photo);
 

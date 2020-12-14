@@ -11,6 +11,7 @@ namespace ERNI.PhotoDatabase.DataAccess.EntityConfiguration
             builder.Property(p => p.Name).HasMaxLength(60).IsRequired();
             builder.Property(p => p.FullSizeImageId).IsRequired();
             builder.Property(p => p.ThumbnailImageId).IsRequired();
+            builder.Property(p => p.TaggedThumbnailImageId).IsRequired();
 
             builder.HasIndex(p => p.FullSizeImageId).IsUnique();
             builder.HasIndex(p => p.ThumbnailImageId).IsUnique();

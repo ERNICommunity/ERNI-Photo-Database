@@ -1,10 +1,12 @@
 ﻿@model ERNI.PhotoDatabase.Server.Model.ImageDescription
 
+
 <div class="row">
-    <input type="hidden" asp-for="Id"/>
+    <input type="hidden" asp-for="Id" />
     <div class="col">
         <div class="card">
-            <img class="card-img-top" src="@Url.Action("Thumbnail", "Photo", new {id = Model.Id})" alt="@Model.Name" style="width:100%;height:100%;">
+            <img id="image-@Model.Name" class="card-img-top image" src="@Url.Action("Thumbnail", "Photo", new {id = Model.Id})" alt="@Model.Name" style="width:100%;height:100%;">
+            <img id="image-tag-@Model.Name" class="card-img-top image-tag" src="@Url.Action("Thumbnail", "Photo", new {id = Model.Id, withOverlay = true})" alt="@Model.Name" style="width:100%;height:100%;display:none">
             <div class="card-body">
                 <input type="text" class="form-control" placeholder="Title" asp-for="Name" value="@Model.Name" />
             </div>
@@ -13,7 +15,7 @@
     <div class="col">
         <div class="form-group">
             <label asp-for="Tags" class="control-label"></label>
-            <input type="text" class="tag-input typeahead" asp-for="Tags" data-role="tagsinput"/>
+            <input type="text" class="tag-input typeahead" asp-for="Tags" data-role="tagsinput" />
         </div>
     </div>
 </div>

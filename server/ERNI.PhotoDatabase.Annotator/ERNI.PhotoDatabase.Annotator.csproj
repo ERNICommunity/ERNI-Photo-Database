@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.ML" Version="1.5.2" />
+    <PackageReference Include="Microsoft.ML.ImageAnalytics" Version="1.5.2" />
+    <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.5.2" />
+    <PackageReference Include="Microsoft.ML.OnnxTransformer" Version="1.5.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ERNI.PhotoDatabase.DataAccess\ERNI.PhotoDatabase.DataAccess.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="assets\Model\yolov4.onnx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
